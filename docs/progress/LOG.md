@@ -281,3 +281,69 @@ Rule: every user prompt gets a **BEFORE** entry (plan, assumptions, risks) and a
 **Written:** `docs/research/better-solutions/README.md`.
 
 **Next:** CF-021a local still test, or CF-023 remote frame. Both need approval.
+
+---
+
+## 2026-10-30 · Full remediation · Phases 0–9
+
+### BEFORE
+
+**Prompt (summary):** Principal architect + cinematographer + performance engineer + QA + security + independent critic. Ten phases: reconcile reality, capability audit, correct the Blender verdict, architecture decision, premium POC, production readiness, quality gates, adversarial review, roadmap, handoff. Reach evidence-based 5/5 without faking scores.
+
+**Supplied hypotheses to verify, not assume:** process 4, tool discovery 4, hardware 3.5, architecture 4, documentation consistency 2, visual quality 2, production readiness 1.5. Blender 42.64 s/frame is "not a valid basis for a universal conclusion."
+
+**Plan**
+1. Phase 0 — git state, then diff every status claim against evidence.
+2. Phase 1 — probe actual binaries; separate skills from executable tools.
+3. Phase 3 — diagnose the black frame by reading `tools/blender_evee_test.py` before rendering anything.
+4. Phases 2/4/5/6 — spec, architecture, POC, pipeline.
+5. Phases 7/8 — score with evidence, then three adversarial passes.
+
+**Thinking**
+- The black frame is a scene bug, not a hardware finding. If diagnosable from source, no render is needed to explain it.
+- The user's autonomy clause authorises "lightweight tests with existing approved tools" and bounded preview tests. It does not authorise full-resolution jobs, installs, or spend.
+- Documentation consistency scoring 2/5 is most likely correct: README still says "no benchmark executed" while `BLENDER_EEVEE_RESULT.md` holds a measured result.
+
+**Assumptions**
+- The repo is the same directory the user opened; `origin` is `youcisla/ContentFactory`.
+- No commit or push will be made.
+
+**Risks**
+- A bounded preview render may still be blocked by the PreToolUse gate. If blocked, document and stop at code diagnosis.
+- Context budget: ten phases in one prompt invites shallow work. Mitigation: write each deliverable to a file rather than chat.
+
+**Success criteria**
+- Every status claim in the repo either matches evidence or is corrected.
+- The black-frame cause is named specifically, with a fix and proof.
+- Scores are 0–5 with named artifacts, not opinions.
+
+### AFTER
+
+**Phase 0 — reconciled.** 20 discrepancies recorded in `docs/reviews/DISCREPANCY_REGISTER.md`; 15 corrected in place (`README.md`, `MASTER_PLAN.md`, `BACKLOG.md`, `RISK_REGISTER.md`, `APPROVAL_GATES.md`), 3 deliberately left (immutable reports, ADR statuses, a research score that would need a re-run to change), 2 flagged as unaudited.
+
+**Phase 1 — capability audit.** Blender 5.2.3 at `tools/blender/blender-5.2.3-windows-x64/`; FFmpeg 8.1.1; Node 26.12.1; Python 3.14.6; Rust 1.96.0; Chrome installed; git 2.54.0. Distinction recorded: the ~2,200 skill/agent entries in `localtools.md` are instructional and grant no capability — only the binaries above execute.
+
+**Phase 3 — Blender verdict corrected.** `docs/benchmarks/BLENDER_EEVEE_CORRECTION.md`.
+- Black frame: five compounding scene defects (albedo 2–6 %, world 1 %, lights not tracked, AgX uncompensated, 50 mm framing cropped a 1.6 m card in a 0.99 m-wide frame). None is a hardware finding.
+- **GPU backend resolved:** `Intel(R) Graphics`, OpenGL `4.6.0 - Build 32.0.101.8860`, backend `OPENGL`. **Not software.** The original "maybe software fallback" risk is closed as refuted.
+- Curve at 1080×1920: **6.67 s @ 8 spp, 15.67 s @ 32, 29.14 s @ 64** (identical luminance to 4 d.p. across all three), **77.41 s @ 64 with raised shadow sampling** (2.7×).
+- 240 frames: 27 min to 5.2 h. The "11× over budget" figure was overstated; the true range is 1.8× to 20.7×. Verdict unchanged.
+- **The dominant cost is shadow sampling, not TAA.** Optimising sample count buys nothing visually and modest time.
+
+**Phase 5 — proof artifact.** `tools/blender_scene_proof.py` renders a 14-material contactless-payment still at 1080×1920 with three-point lighting, real ID-1 card geometry, gold chip, magnetic stripe, emissive NFC rings, and a dark studio sweep. Output `proof_final.png`. It **passes an objective gate** the original benchmark lacked: mean luminance 0.2468 in [0.040, 0.400], p99 0.7107 ≥ 0.70, dark fraction 0.0447. The gate caught two real regressions during iteration (a lost highlight; a blown floor hotspot).
+
+**Not done**
+- No 10 s sequence. Local cannot meet the budget at any measured setting; remote needs approval and spend.
+- Phases 2, 4, 6 not newly produced: `TREATMENT_TAP.md`, `BENCHMARK_SPEC_PREMIUM.md` and `reports/v2/02` already cover spec, architecture and pipeline intent. Re-writing them without new evidence would add words, not information.
+- No architecture was compared on the same storyboard. That is the honest gap in "architecture validation".
+
+**Scorecard** (`docs/reviews/REMEDIATION_REVIEW_2026-10-30.md`): process 4, tool discovery 4, hardware 4 (was 3.5), architecture 3.5 (was 4), documentation 3.5 (was 2), visual 3 (was 2), production readiness 1.5 (unchanged). No aggregate — averaging hides that no video can be produced.
+
+**Defect found while checking the diff:** `tools/.gitignore` was a bare `*`, so `blender_evee_test.py` — the CF-020 evidence script — was invisible to git. A fresh clone could not reproduce any render claim. Narrowed to `blender/`, `blender-test/`, `*.zip`. **Revert if that was deliberate.**
+
+**What to improve**
+- E3 (no determinism check) and E4 (evidence images unversioned) are the two engineering findings that matter most.
+- C1 and C7 from the cinematic pass: the NFC rings read as hoops, and the frame teaches nothing. Fixing those is the difference between a product mockup and an explainer.
+- P5 from the product pass: script, factual verification and narration have no work behind them at all.
+
+**Next:** approval needed on remote render (B1) or B0 (B2) before any further rendering.

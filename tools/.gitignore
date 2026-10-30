@@ -1,0 +1,5 @@
+# Was a bare `*`, which hid the scene scripts as well as the toolchain.
+# Scripts are source and must be tracked so a fresh clone can reproduce a render.
+blender/
+blender-test/
+*.zip

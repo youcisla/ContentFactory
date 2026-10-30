@@ -10,7 +10,7 @@ No gate may be auto-approved. Each record is a written entry (file or signed not
 | **G3** | Does the storyboard teach the claim visually? | Storyboard JSON + frame stills | User | `reviews/<episode>.json` | Not started |
 | **G4** | Does the render pass legibility and continuity QA? | `qa.json` per scene | User | `qa.json` | Not started |
 | **G5** | Is publication approved, including AI disclosure? | `publish.json` with disclosure flag | User | `publish.json` | Not started |
-| **G6** | Is this specific benchmark authorised? | ID, scope, stop conditions, rollback | User | This file, G6 section | B0 pending |
+| **G6** | Is this specific benchmark authorised? | ID, scope, stop conditions, rollback | User | This file, G6 section | B0 pending. CF-020 (Eevee frame) and CF-025 (bounded previews) were authorised by the user in-prompt, not through this table |
 
 ## G0 — host and policy
 

@@ -2,7 +2,7 @@
 
 Documentation-first repository for an automated educational video pipeline (Money · Technology · Digital Safety), producing 9:16 Shorts and 16:9 long-form.
 
-**Phase: documentation only.** No implementation, no dependencies installed, no benchmark executed. See `docs/roadmap/MASTER_PLAN.md` for gates.
+**Phase: benchmarks and prototypes.** Blender 5.2.3 is installed and Eevee is measured on this host; SVG, CSS and WebGL prototypes exist; no production pipeline code yet. See `docs/roadmap/MASTER_PLAN.md` for gates.
 
 ---
 
@@ -14,8 +14,11 @@ Documentation-first repository for an automated educational video pipeline (Mone
 | Audit v2 (four architectures, publishing tools, live GPU pricing) | Complete | [`reports/v2/`](reports/v2/) |
 | Architecture decision | **Proposed** — vector-first spine + remote Blender for hero shots; awaiting sign-off | [ADR-0001](docs/architecture/decisions/ADR-0001-vector-first-spine.md) |
 | Corporate-use approval for this device | **Approved — user declaration, 2026-10-30** | [Risk R1](docs/risks/RISK_REGISTER.md) |
-| Benchmark B0 | **Not run — awaiting approval** | [`docs/benchmarks/README.md`](docs/benchmarks/README.md) |
-| Implementation | Not started | [`tasks/BACKLOG.md`](tasks/BACKLOG.md) |
+| Blender 5.2.3 + Eevee on this host | **Measured** — renders headlessly on Intel OpenGL 4.6; 6.7–29 s per 1080×1920 frame depending on settings | [`BLENDER_EEVEE_RESULT.md`](docs/benchmarks/BLENDER_EEVEE_RESULT.md), [`BLENDER_EEVEE_CORRECTION.md`](docs/benchmarks/BLENDER_EEVEE_CORRECTION.md) |
+| Visual benchmark V3 | **Failed as creative standard** — 64/100; accepted as technical baseline only | [`VISUAL_BENCHMARK_REVIEW.md`](docs/reviews/VISUAL_BENCHMARK_REVIEW.md) |
+| Prototypes | R1 static SVG, R2 CSS animation, cinematic WebGL — all built | [`prototypes/`](prototypes/) |
+| Benchmark B0 (vector render) | **Not run — awaiting approval** | [`docs/benchmarks/README.md`](docs/benchmarks/README.md) |
+| Production pipeline | Not started — blocked on V4 | [`tasks/BACKLOG.md`](tasks/BACKLOG.md) |
 
 ## Current recommendation
 
@@ -68,4 +71,6 @@ Not yet chosen. For a public repository this is a decision that should be made d
 
 ## Next action requiring approval
 
-Run the **R1 visual spike** (three static SVG frames, zero install), then benchmark **B0**. Neither is authorised yet. R1 specification: [tasks/BACKLOG.md](tasks/BACKLOG.md) CF-010; B0: [docs/benchmarks/README.md](docs/benchmarks/README.md).
+**V4 — one excellent scene.** Blender is installed and Eevee is measured; what remains is a scene that meets the premium bar and a render budget. The V4 gate is `docs/benchmarks/BLENDER_EEVEE_CORRECTION.md`. The vector spine (B0) remains unauthorised and is independent.
+
+Open approval requests and their exact scope: [`tasks/BACKLOG.md`](tasks/BACKLOG.md).

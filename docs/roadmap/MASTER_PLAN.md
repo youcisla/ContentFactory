@@ -30,12 +30,13 @@ Produce original educational videos (Money · Technology · Digital Safety) in 9
 |---|---|
 | Policy approval for this device (G0) | **Approved** — user declaration, 2026-10-30 |
 | Architecture decision | Proposed (ADR-0001) — awaiting user sign-off |
-| Benchmark B0 | Authorised: **no** |
+| Benchmark B0 (vector render) | Authorised: **no** — separate from the Eevee work already done |
 | Visual benchmark (V0–V3) | POC built, **64/100** — rejected as creative standard, accepted as technical baseline |
-| Premium 3D feasibility (CF-018) | Complete — Blender Eevee expected supported; install not approved (`docs/research/blender-feasibility/`) |
-| V4 one-scene gate | **Blocked** — needs Blender approval; automation deliberately deferred |
-| Implementation | Not started |
-| Current phase | R1 review — awaiting visual approval; R2 benchmark blocked on G6 |
+| Premium 3D feasibility (CF-018) | Complete — `docs/research/blender-feasibility/` |
+| Blender capability on this host | **Measured** — 5.2.3 installed; Eevee renders headlessly on Intel OpenGL 4.6; GPU backend confirmed, not a software fallback (`docs/benchmarks/BLENDER_EEVEE_CORRECTION.md`) |
+| V4 one-scene gate | **Open** — install and capability are settled; scene quality and render budget are not. Automation deliberately deferred |
+| Production pipeline | Not started — blocked on V4 |
+| Current phase | **V4 — one excellent scene**; R2 (B0 vector benchmark) remains blocked on G6 and is independent |
 
 ## 5. Phases
 
@@ -43,7 +44,7 @@ Produce original educational videos (Money · Technology · Digital Safety) in 9
 |---|---|---|---|---|
 | **R0** | Resolve corporate-use policy and host choice | — | Written answer covering installation and personal commercial use | Done — user declaration 2026-10-30 |
 | **R1** | Visual-language spike: SVG frames, CSS animation, cinematic WebGL POC | R0 or explicit risk acceptance | User approves the look | Implemented — 64/100, fails premium bar; awaiting V3 (`prototypes/cinematic`, `docs/reviews/VISUAL_BENCHMARK_REVIEW.md`) |
-| **V4** | **One excellent scene** — premium 3D benchmark, 10 s @ 24 fps | R1 + Blender approval | Score ≥80 and user accepts the look | **Blocked** — install approval |
+| **V4** | **One excellent scene** — premium 3D benchmark, 10 s @ 24 fps | R1 | Score ≥80 and user accepts the look | **Open** — Blender installed and measured; a still exists that passes an objective exposure gate; the 10 s sequence has not been rendered |
 | **R2** | **B0 benchmark** — 10 s vector render | R1 | Pass: ≤3 min, ≤1.5 GB RAM, ≤15 MB, legible at 360 px | Not authorised |
 | **R3** | Spine: schemas, frame generator, rasteriser, encoder | R2 pass | Re-render produces identical frames for static scenes | Not started |
 | **R4** | Template library (5 templates, both ratios) | R3 | Every template renders cleanly in 9:16 and 16:9 | Not started |

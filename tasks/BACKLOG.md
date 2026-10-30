@@ -3,7 +3,9 @@
 Atomic work only. Phase intent lives in [`docs/roadmap/MASTER_PLAN.md`](../docs/roadmap/MASTER_PLAN.md); this file does not restate it.
 Status values: `blocked` · `ready` · `in progress` · `done` · `dropped`.
 
-**Current reality: every task is blocked on G0 or G6. No implementation is authorised.**
+**Current reality (2026-10-30):** G0 is approved. Phase 1 spike tasks CF-010–CF-020 are complete. Blender 5.2.3 is installed and Eevee is measured. The only open work is V4 (one excellent scene), the vector spine (CF-015, blocked on G6), and everything downstream of V4.
+
+**ID rule:** an ID is never reused. When a task was renumbered, the old ID is retired, not reassigned. CF-020 and CF-021 previously appeared twice with different meanings; the Phase 2 duplicates are now CF-025 and CF-026.
 
 ---
 
@@ -28,9 +30,10 @@ Status values: `blocked` · `ready` · `in progress` · `done` · `dropped`.
 | CF-016 | Cinematic treatment + shot list | done | — | `docs/creative/TREATMENT_TAP.md` |
 | CF-017 | WebGL cinematic POC (10 s, 9:16) | done | CF-016 | `the-tap.mp4` rendered; **64/100**, below 90 bar |
 | CF-018 | Premium 3D feasibility: Blender Eevee, assets, benchmark spec | done | — | Report + shortlist + spec; no install or render |
-| CF-019 | Authoring tool for premium 3D (Blender install or personal GPU machine) | **blocked** | user approval | Blender 5.2.3 portable ZIP installed, or host changed |
+| CF-019 | Authoring tool for premium 3D (Blender install or personal GPU machine) | done | — | Blender 5.2.3 portable ZIP installed at `tools/blender/blender-5.2.3-windows-x64/` |
 | CF-020 | Install Blender 5.2.3 portable ZIP | done | — | 5.2.3 runs; one-frame Eevee render measured (42.64 s, 1.59 GB) |
-| CF-021 | V4 one-scene benchmark — **remote GPU path** | **blocked** | CF-023 + local still test | 10 s @ 24 fps, score ≥80; see `docs/benchmarks/BLENDER_EEVEE_RESULT.md` |
+| CF-021 | V4 one-scene benchmark — 10 s @ 24 fps | **in progress** | CF-025 | Scene renders and passes an objective exposure gate; the 10 s sequence does not yet exist. See `docs/benchmarks/BLENDER_EEVEE_CORRECTION.md` |
+| CF-025 | Corrected Eevee scene + objective exposure gate + GPU backend probe | done | — | `tools/blender_scene_proof.py`; gate PASS on `proof_final.png`; GPU = Intel OpenGL 4.6 |
 | CF-022 | Automation only after V4 | **blocked** | CF-021 | Visual acceptance precedes batch work |
 | CF-023 | Remote Eevee test — one frame on RunPod Community 4090 ($0.34/h) or Vast 4090 ($0.41/h) | **blocked** | user approval + spend (~$0.05) | Wall clock recorded; cost per 10 s scene computed |
 | CF-024 | Free fallback: SheepIt Eevee test with a public, non-sensitive scene | **blocked** | account + IP-risk acceptance | Eevee supported in practice; queue time recorded |
@@ -39,8 +42,8 @@ Status values: `blocked` · `ready` · `in progress` · `done` · `dropped`.
 
 | ID | Task | Status | Blocked by | Acceptance |
 |---|---|---|---|---|
-| CF-020 | Approve and run B0 (10 s vector render spike) | blocked | G6 approval | Pass criteria met; results logged in `docs/benchmarks/README.md` |
-| CF-021 | Update risk R2/R3 and cost model with measured numbers | blocked | CF-020 | Registers updated; audit reports untouched |
+| CF-026 | Approve and run B0 (10 s vector render spike) | blocked | G6 approval | Pass criteria met; results logged in `docs/benchmarks/README.md` |
+| CF-027 | Update risk R2/R3 and cost model with measured numbers | blocked | CF-026 | Registers updated; audit reports untouched |
 
 ## Phase 3 — spine
 
