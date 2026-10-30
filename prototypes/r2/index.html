@@ -1,0 +1,177 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>R2 prototype — contactless authorization</title>
+<style>
+  :root{
+    --bg:#0B1020; --surface:#121A2B; --stroke:#22304A;
+    --text:#E6EDF7; --muted:#9FB0C7;
+    --accent:#4C8DFF; --cyan:#22D3EE; --amber:#F5B547; --green:#34D399;
+    --dur:12s;
+  }
+  html,body{margin:0;padding:0;background:#05070d;color:var(--text);
+    font-family:'Segoe UI','Inter',Arial,sans-serif}
+  .stage{position:relative;width:1080px;height:1920px;margin:0 auto;
+    background:var(--bg);overflow:hidden;transform-origin:top center}
+  svg{position:absolute;inset:0;width:100%;height:100%}
+  text{font-family:'Segoe UI','Inter',Arial,sans-serif}
+
+  .kicker{font-size:32px;letter-spacing:4px;font-weight:600;fill:var(--muted)}
+  .title{font-size:76px;font-weight:700;fill:var(--text)}
+  .node-title{font-size:40px;font-weight:600;fill:var(--text)}
+  .node-sub{font-size:29px;font-weight:400;fill:var(--muted)}
+  .num{font-size:28px;font-weight:700;fill:var(--bg)}
+  .foot{font-size:30px;fill:var(--cyan)}
+
+  .fade{opacity:0;animation:fade .7s ease forwards}
+  .node{opacity:0;animation:rise .6s ease forwards}
+  @keyframes fade{to{opacity:1}}
+  @keyframes rise{from{opacity:0;transform:translateY(26px)}to{opacity:1;transform:none}}
+
+  .d1{animation-delay:.15s}.d2{animation-delay:.55s}
+  .n1{animation-delay:1.2s}.n2{animation-delay:2.2s}.n3{animation-delay:3.2s}
+  .n4{animation-delay:4.2s}.n5{animation-delay:5.2s}
+  .dfoot{animation-delay:6.2s}
+
+  .dot{opacity:0;animation:travel var(--dur) linear infinite}
+  @keyframes travel{
+    0%,10%{transform:translateY(0);opacity:0}
+    12%{opacity:1}
+    72%{transform:translateY(890px);opacity:1}
+    76%,100%{transform:translateY(890px);opacity:0}
+  }
+
+  .pulse{opacity:0;animation:pulse var(--dur) ease-in-out infinite}
+  @keyframes pulse{
+    0%,46%{opacity:0;transform:scale(.96)}
+    52%{opacity:1;transform:scale(1)}
+    70%{opacity:1;transform:scale(1)}
+    76%,100%{opacity:0;transform:scale(1.02)}
+  }
+
+  .take{position:absolute;inset:0;display:flex;flex-direction:column;
+    justify-content:center;padding:0 96px;background:var(--bg);
+    opacity:0;animation:take var(--dur) ease infinite}
+  @keyframes take{
+    0%,72%{opacity:0}
+    78%,94%{opacity:1}
+    100%{opacity:0}
+  }
+  .take h2{font-size:84px;line-height:1.1;margin:0 0 28px;font-weight:700}
+  .take p{font-size:38px;color:var(--muted);margin:0}
+  .chip{display:inline-block;margin-top:40px;padding:20px 32px;border-radius:999px;
+    border:3px solid var(--stroke);color:var(--amber);font-size:30px;font-weight:600}
+
+  @media (prefers-reduced-motion: reduce){
+    html:not(.force-motion) .fade,
+    html:not(.force-motion) .node,
+    html:not(.force-motion) .take{animation:none;opacity:1}
+    html:not(.force-motion) .dot,
+    html:not(.force-motion) .pulse{animation:none;display:none}
+    /* Final composition: the takeaway replaces the flow, never overlaps it. */
+    html:not(.force-motion) .take{background:#0B1020;justify-content:center}
+  }
+</style>
+</head>
+<body>
+<div class="stage" id="stage" data-duration="12">
+  <svg viewBox="0 0 1080 1920" role="img" aria-label="Animated authorization flow">
+    <rect x="0" y="0" width="1080" height="1920" fill="#0B1020"/>
+
+    <text class="kicker fade d1" x="96" y="262">THE AUTHORIZATION FLOW</text>
+    <text class="title fade d2" x="96" y="352">Five systems, one tap.</text>
+
+    <!-- progress rail: the packet travels outside the text column -->
+    <line x1="60" y1="520" x2="60" y2="1410" stroke="#22304A" stroke-width="4"/>
+
+    <g class="node n1">
+      <rect x="96" y="430" width="888" height="180" rx="28" fill="#121A2B" stroke="#22304A" stroke-width="3"/>
+      <circle cx="182" cy="520" r="44" fill="#4C8DFF"/>
+      <text class="num" x="166" y="531">01</text>
+      <text class="node-title" x="262" y="505">Card</text>
+      <text class="node-sub" x="262" y="556">Sends payment data over NFC</text>
+    </g>
+    <g class="node n2">
+      <rect x="96" y="650" width="888" height="180" rx="28" fill="#121A2B" stroke="#22304A" stroke-width="3"/>
+      <circle cx="182" cy="740" r="44" fill="#4C8DFF"/>
+      <text class="num" x="166" y="751">02</text>
+      <text class="node-title" x="262" y="725">Terminal</text>
+      <text class="node-sub" x="262" y="776">Builds the authorization request</text>
+    </g>
+    <g class="node n3">
+      <rect x="96" y="870" width="888" height="180" rx="28" fill="#121A2B" stroke="#22304A" stroke-width="3"/>
+      <circle cx="182" cy="960" r="44" fill="#4C8DFF"/>
+      <text class="num" x="166" y="971">03</text>
+      <text class="node-title" x="262" y="945">Acquirer</text>
+      <text class="node-sub" x="262" y="996">Merchant's bank; routes the request</text>
+    </g>
+    <g class="node n4">
+      <rect x="96" y="1090" width="888" height="180" rx="28" fill="#121A2B" stroke="#22304A" stroke-width="3"/>
+      <circle cx="182" cy="1180" r="44" fill="#4C8DFF"/>
+      <text class="num" x="166" y="1191">04</text>
+      <text class="node-title" x="262" y="1165">Card network</text>
+      <text class="node-sub" x="262" y="1216">Connects acquirer to issuer</text>
+    </g>
+    <g class="node n5">
+      <rect x="96" y="1310" width="888" height="180" rx="28" fill="#121A2B" stroke="#22304A" stroke-width="3"/>
+      <circle cx="182" cy="1400" r="44" fill="#F5B547"/>
+      <text class="num" x="166" y="1411">05</text>
+      <text class="node-title" x="262" y="1385">Issuing bank</text>
+      <text class="node-sub" x="262" y="1436">Checks balance and fraud rules</text>
+      <g class="pulse" style="transform-origin:810px 1400px">
+        <rect x="690" y="1362" width="240" height="76" rx="38" fill="#34D399"/>
+        <text x="810" y="1411" text-anchor="middle" font-size="28" font-weight="700" fill="#06251b">APPROVED</text>
+      </g>
+    </g>
+
+    <circle class="dot" cx="60" cy="520" r="12" fill="#22D3EE"/>
+
+    <text class="foot fade dfoot" x="96" y="1548">Approval or decline returns along the same path.</text>
+  </svg>
+
+  <div class="take">
+    <h2>A hold is not<br>a payment.</h2>
+    <p>Authorization reserves funds.<br>Settlement moves them, later.</p>
+    <span class="chip">AUTHORIZATION ≠ SETTLEMENT</span>
+  </div>
+</div>
+
+<script>
+  // Scale the 1080x1920 stage to the viewport without changing internal geometry.
+  (function () {
+    var stage = document.getElementById('stage');
+    function fit() {
+      var s = Math.min(window.innerWidth / 1080, window.innerHeight / 1920);
+      stage.style.transform = 'scale(' + s + ')';
+      stage.style.height = (1920 * s) + 'px';
+      stage.style.width = (1080 * s) + 'px';
+      stage.style.marginTop = '0';
+    }
+    fit();
+    window.addEventListener('resize', fit);
+  })();
+
+  // Deterministic preview seek: ?t=<seconds> freezes every animation at that time.
+  (function () {
+    var params = new URLSearchParams(location.search);
+    // Headless Chrome can report prefers-reduced-motion: reduce; this opts back in.
+    if (params.get('motion') === 'full') {
+      document.documentElement.classList.add('force-motion');
+    }
+    var t = params.get('t');
+    if (t === null) return;
+    var ms = Math.max(0, parseFloat(t) * 1000);
+    if (isNaN(ms)) return;
+    function apply() {
+      document.getAnimations().forEach(function (a) {
+        try { a.pause(); a.currentTime = ms; } catch (e) { /* ignore */ }
+      });
+    }
+    apply();
+    requestAnimationFrame(apply);
+  })();
+</script>
+</body>
+</html>

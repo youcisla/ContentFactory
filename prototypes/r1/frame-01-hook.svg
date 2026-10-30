@@ -1,0 +1,45 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1920" viewBox="0 0 1080 1920" role="img" aria-labelledby="t1 d1">
+  <title id="t1">Hook: your card was approved in 1.3 seconds</title>
+  <desc id="d1">Title card for a short explaining contactless card authorization.</desc>
+  <defs>
+    <style>
+      text{font-family:'Segoe UI','Inter',Arial,sans-serif}
+      .bg{fill:#0B1020}
+      .surface{fill:#121A2B}
+      .stroke{stroke:#22304A;stroke-width:3}
+      .text{fill:#E6EDF7;font-family:'Segoe UI','Inter',Arial,sans-serif}
+      .muted{fill:#9FB0C7;font-family:'Segoe UI','Inter',Arial,sans-serif}
+      .accent{fill:#4C8DFF}
+      .cyan{fill:#22D3EE}
+      .amber{fill:#F5B547}
+      .kicker{font-size:34px;letter-spacing:4px;font-weight:600}
+      .h1{font-size:108px;font-weight:700}
+      .sub{font-size:44px;font-weight:400}
+      .cap{font-size:36px;letter-spacing:2px}
+    </style>
+  </defs>
+
+  <rect class="bg" x="0" y="0" width="1080" height="1920"/>
+
+  <text class="muted kicker" x="96" y="282">MONEY · HOW IT WORKS</text>
+
+  <text class="text h1" x="96" y="470">Your card was</text>
+  <text class="text h1" x="96" y="588">approved in</text>
+  <text class="accent h1" x="96" y="706">1.3 seconds.</text>
+
+  <text class="muted sub" x="96" y="806">Here is what actually happened.</text>
+
+  <g>
+    <rect class="surface stroke" x="240" y="980" width="600" height="370" rx="40"/>
+    <rect class="amber" x="300" y="1064" width="96" height="74" rx="12"/>
+    <rect class="stroke" x="300" y="1170" width="300" height="18" rx="9"/>
+    <rect class="stroke" x="300" y="1214" width="220" height="18" rx="9"/>
+    <g fill="none" stroke="#22D3EE" stroke-width="10" stroke-linecap="round">
+      <path d="M700 1100 a60 60 0 0 1 0 90"/>
+      <path d="M742 1080 a110 110 0 0 1 0 130"/>
+      <path d="M784 1058 a165 165 0 0 1 0 174"/>
+    </g>
+  </g>
+
+  <text class="muted cap" x="96" y="1490">TAP · AUTHORIZE · SETTLE</text>
+</svg>

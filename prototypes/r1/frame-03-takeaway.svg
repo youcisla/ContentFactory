@@ -1,0 +1,52 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1920" viewBox="0 0 1080 1920" role="img" aria-labelledby="t3 d3">
+  <title id="t3">Takeaway: authorization is not settlement</title>
+  <desc id="d3">Two panels contrasting a funds hold with the later movement of money.</desc>
+  <defs>
+    <style>
+      text{font-family:'Segoe UI','Inter',Arial,sans-serif}
+      .bg{fill:#0B1020}
+      .surface{fill:#121A2B}
+      .stroke{stroke:#22304A;stroke-width:3}
+      .text{fill:#E6EDF7;font-family:'Segoe UI','Inter',Arial,sans-serif}
+      .muted{fill:#9FB0C7;font-family:'Segoe UI','Inter',Arial,sans-serif}
+      .amber{fill:#F5B547}
+      .cyan{fill:#22D3EE}
+      .kicker{font-size:32px;letter-spacing:4px;font-weight:600}
+      .h1{font-size:92px;font-weight:700}
+      .panel{font-size:32px;letter-spacing:3px;font-weight:700}
+      .value{font-size:62px;font-weight:700}
+      .item{font-size:30px}
+      .foot{font-size:40px;font-weight:600}
+      .fine{font-size:26px}
+    </style>
+  </defs>
+
+  <rect class="bg" x="0" y="0" width="1080" height="1920"/>
+
+  <text class="muted kicker" x="96" y="262">THE TAKEAWAY</text>
+  <text class="text h1" x="96" y="400">Authorization is</text>
+  <text class="text h1" x="96" y="500">not settlement.</text>
+
+  <g>
+    <rect class="surface stroke" x="90" y="620" width="430" height="470" rx="32"/>
+    <text class="amber panel" x="126" y="690">AUTHORIZATION</text>
+    <text class="text value" x="126" y="776">Seconds</text>
+    <text class="muted item" x="126" y="850">Funds are held</text>
+    <text class="muted item" x="126" y="906">No money moves yet</text>
+    <text class="muted item" x="126" y="962">Can be reversed</text>
+  </g>
+
+  <g>
+    <rect class="surface stroke" x="560" y="620" width="430" height="470" rx="32"/>
+    <text class="cyan panel" x="596" y="690">SETTLEMENT</text>
+    <text class="text value" x="596" y="776">T+1</text>
+    <text class="muted item" x="596" y="850">Funds actually move</text>
+    <text class="muted item" x="596" y="906">Batch clearing</text>
+    <text class="muted item" x="596" y="962">Interchange is paid</text>
+  </g>
+
+  <text class="text foot" x="90" y="1240">A hold reserves money.</text>
+  <text class="text foot" x="90" y="1300">Settlement moves it.</text>
+
+  <text class="muted fine" x="90" y="1420">Educational simplification. Timing varies by network and region.</text>
+</svg>

@@ -19,9 +19,12 @@ Status values: `blocked` · `ready` · `in progress` · `done` · `dropped`.
 
 | ID | Task | Status | Blocked by | Acceptance |
 |---|---|---|---|---|
-| CF-010 | Author 3 static SVG frames at 1080×1920 (title, flow diagram, data callout) | ready — awaiting approval | — | Files exist; readable at 360 px |
-| CF-011 | Render the 3 frames with an existing tool, no install | blocked | CF-010 | PNGs produced without installing anything |
-| CF-012 | User approves visual language | blocked | CF-011 | Written approval, or a new ADR if the style changes |
+| CF-010 | Author 3 static SVG frames at 1080×1920 (title, flow diagram, data callout) | done | — | 3 frames + storyboard + source notes; validator PASS |
+| CF-011 | Render the 3 frames with an existing tool, no install | done | CF-010 | PNGs in `prototypes/r1/previews/`, rendered with installed Chrome |
+| CF-012 | User approves visual language | ready — awaiting user | CF-011 | Written approval, or a new ADR if the style changes |
+| CF-013 | 12 s animated SVG/CSS prototype | done | CF-012 (authorised in advance) | `prototypes/r2/`, validator PASS, 4 states captured |
+| CF-014 | Rust rendering evaluation | done | — | `docs/research/rust-rendering/`; no build, no download |
+| CF-015 | B0 render benchmark | **blocked** | resvg download approval (G6) | Wall clock, RAM, output size recorded |
 
 ## Phase 2 — benchmark
 

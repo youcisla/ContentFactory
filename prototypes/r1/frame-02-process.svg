@@ -1,0 +1,77 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1080" height="1920" viewBox="0 0 1080 1920" role="img" aria-labelledby="t2 d2">
+  <title id="t2">The authorization flow across five systems</title>
+  <desc id="d2">Vertical flow diagram: card, terminal, acquirer, card network, issuing bank, then a response back.</desc>
+  <defs>
+    <style>
+      text{font-family:'Segoe UI','Inter',Arial,sans-serif}
+      .bg{fill:#0B1020}
+      .surface{fill:#121A2B}
+      .stroke{stroke:#22304A;stroke-width:3}
+      .text{fill:#E6EDF7;font-family:'Segoe UI','Inter',Arial,sans-serif}
+      .muted{fill:#9FB0C7;font-family:'Segoe UI','Inter',Arial,sans-serif}
+      .accent{fill:#4C8DFF}
+      .cyan{fill:#22D3EE}
+      .amber{fill:#F5B547}
+      .kicker{font-size:32px;letter-spacing:4px;font-weight:600}
+      .h2{font-size:68px;font-weight:700}
+      .node{font-size:42px;font-weight:600}
+      .sub{font-size:30px;font-weight:400}
+      .num{font-size:30px;font-weight:700}
+      .foot{font-size:30px}
+    </style>
+    <marker id="arrow" viewBox="0 0 12 12" refX="10" refY="6" markerWidth="8" markerHeight="8" orient="auto">
+      <path d="M0 0 L12 6 L0 12 Z" fill="#4C8DFF"/>
+    </marker>
+  </defs>
+
+  <rect class="bg" x="0" y="0" width="1080" height="1920"/>
+
+  <text class="muted kicker" x="96" y="262">THE AUTHORIZATION FLOW</text>
+  <text class="text h2" x="96" y="352">Five systems, one tap.</text>
+
+  <g>
+    <rect class="surface stroke" x="96" y="430" width="888" height="180" rx="28"/>
+    <circle class="accent" cx="182" cy="520" r="44"/>
+    <text class="bg num" x="166" y="532">01</text>
+    <text class="text node" x="262" y="505">Card</text>
+    <text class="muted sub" x="262" y="556">Sends payment data over NFC</text>
+  </g>
+  <line x1="540" y1="610" x2="540" y2="642" stroke="#4C8DFF" stroke-width="5" marker-end="url(#arrow)"/>
+
+  <g>
+    <rect class="surface stroke" x="96" y="650" width="888" height="180" rx="28"/>
+    <circle class="accent" cx="182" cy="740" r="44"/>
+    <text class="bg num" x="166" y="752">02</text>
+    <text class="text node" x="262" y="725">Terminal</text>
+    <text class="muted sub" x="262" y="776">Builds the authorization request</text>
+  </g>
+  <line x1="540" y1="830" x2="540" y2="862" stroke="#4C8DFF" stroke-width="5" marker-end="url(#arrow)"/>
+
+  <g>
+    <rect class="surface stroke" x="96" y="870" width="888" height="180" rx="28"/>
+    <circle class="accent" cx="182" cy="960" r="44"/>
+    <text class="bg num" x="166" y="972">03</text>
+    <text class="text node" x="262" y="945">Acquirer</text>
+    <text class="muted sub" x="262" y="996">Merchant's bank; routes the request</text>
+  </g>
+  <line x1="540" y1="1050" x2="540" y2="1082" stroke="#4C8DFF" stroke-width="5" marker-end="url(#arrow)"/>
+
+  <g>
+    <rect class="surface stroke" x="96" y="1090" width="888" height="180" rx="28"/>
+    <circle class="accent" cx="182" cy="1180" r="44"/>
+    <text class="bg num" x="166" y="1192">04</text>
+    <text class="text node" x="262" y="1165">Card network</text>
+    <text class="muted sub" x="262" y="1216">Connects acquirer to issuer</text>
+  </g>
+  <line x1="540" y1="1270" x2="540" y2="1302" stroke="#4C8DFF" stroke-width="5" marker-end="url(#arrow)"/>
+
+  <g>
+    <rect class="surface stroke" x="96" y="1310" width="888" height="180" rx="28"/>
+    <circle class="amber" cx="182" cy="1400" r="44"/>
+    <text class="bg num" x="166" y="1412">05</text>
+    <text class="text node" x="262" y="1385">Issuing bank</text>
+    <text class="muted sub" x="262" y="1436">Checks balance and fraud rules</text>
+  </g>
+
+  <text class="cyan foot" x="96" y="1548">Approval or decline returns along the same path.</text>
+</svg>

@@ -32,14 +32,14 @@ Produce original educational videos (Money · Technology · Digital Safety) in 9
 | Architecture decision | Proposed (ADR-0001) — awaiting user sign-off |
 | Benchmark B0 | Authorised: **no** |
 | Implementation | Not started |
-| Current phase | R1 |
+| Current phase | R1 review — awaiting visual approval; R2 benchmark blocked on G6 |
 
 ## 5. Phases
 
 | Phase | Goal | Depends on | Gate to exit | Status |
 |---|---|---|---|---|
 | **R0** | Resolve corporate-use policy and host choice | — | Written answer covering installation and personal commercial use | Done — user declaration 2026-10-30 |
-| **R1** | Zero-install visual-language spike (3 SVG frames) | R0 or explicit risk acceptance | User approves the look | Not started |
+| **R1** | Visual-language spike: 3 static SVG frames + 12 s CSS animation | R0 or explicit risk acceptance | User approves the look | Implemented — awaiting approval (`prototypes/r1`, `prototypes/r2`, review in `docs/reviews/`) |
 | **R2** | **B0 benchmark** — 10 s vector render | R1 | Pass: ≤3 min, ≤1.5 GB RAM, ≤15 MB, legible at 360 px | Not authorised |
 | **R3** | Spine: schemas, frame generator, rasteriser, encoder | R2 pass | Re-render produces identical frames for static scenes | Not started |
 | **R4** | Template library (5 templates, both ratios) | R3 | Every template renders cleanly in 9:16 and 16:9 | Not started |
