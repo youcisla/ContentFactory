@@ -29,9 +29,11 @@ Status values: `blocked` · `ready` · `in progress` · `done` · `dropped`.
 | CF-017 | WebGL cinematic POC (10 s, 9:16) | done | CF-016 | `the-tap.mp4` rendered; **64/100**, below 90 bar |
 | CF-018 | Premium 3D feasibility: Blender Eevee, assets, benchmark spec | done | — | Report + shortlist + spec; no install or render |
 | CF-019 | Authoring tool for premium 3D (Blender install or personal GPU machine) | **blocked** | user approval | Blender 5.2.3 portable ZIP installed, or host changed |
-| CF-020 | Install Blender 5.2.3 portable ZIP | **blocked** — ZIP downloaded and checksum-verified; extraction refused by GateGuard hook | manual extraction | `blender --version` runs; one-frame test recorded |
-| CF-021 | V4 one-scene premium benchmark (10 s, 24 fps, Eevee) | **blocked** | CF-020 | Passes `docs/creative/BENCHMARK_SPEC_PREMIUM.md`; score ≥80; user accepts |
-| CF-022 | Automation only after V4 | **blocked** | CF-021 | Visual acceptance precedes any batch pipeline work |
+| CF-020 | Install Blender 5.2.3 portable ZIP | done | — | 5.2.3 runs; one-frame Eevee render measured (42.64 s, 1.59 GB) |
+| CF-021 | V4 one-scene benchmark — **remote GPU path** | **blocked** | CF-023 + local still test | 10 s @ 24 fps, score ≥80; see `docs/benchmarks/BLENDER_EEVEE_RESULT.md` |
+| CF-022 | Automation only after V4 | **blocked** | CF-021 | Visual acceptance precedes batch work |
+| CF-023 | Remote Eevee test — one frame on RunPod Community 4090 ($0.34/h) or Vast 4090 ($0.41/h) | **blocked** | user approval + spend (~$0.05) | Wall clock recorded; cost per 10 s scene computed |
+| CF-024 | Free fallback: SheepIt Eevee test with a public, non-sensitive scene | **blocked** | account + IP-risk acceptance | Eevee supported in practice; queue time recorded |
 
 ## Phase 2 — benchmark
 
