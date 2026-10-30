@@ -11,15 +11,15 @@ Status values: `blocked` · `ready` · `in progress` · `done` · `dropped`.
 
 | ID | Task | Status | Blocked by | Acceptance |
 |---|---|---|---|---|
-| CF-001 | Obtain written IT policy answer (install rights, personal commercial use, storage) | blocked | user action | Written answer recorded in `APPROVAL_GATES.md` G0 |
-| CF-002 | Choose host: this device / personal device / cloud-only | blocked | CF-001 | Decision recorded; ADR if it changes architecture |
+| CF-001 | Obtain policy answer (install rights, personal commercial use, storage) | done | — | User declaration recorded in `APPROVAL_GATES.md` G0, 2026-10-30; no IT document on file |
+| CF-002 | Choose host: this device / personal device / cloud-only | done | — | This laptop chosen by user; no architecture change |
 | CF-003 | Decide repository licence | ready | — | Licence file added, or "none" recorded as an ADR |
 
 ## Phase 1 — visual spike (no install)
 
 | ID | Task | Status | Blocked by | Acceptance |
 |---|---|---|---|---|
-| CF-010 | Author 3 static SVG frames at 1080×1920 (title, flow diagram, data callout) | blocked | CF-002 (or explicit risk acceptance) | Files exist; readable at 360 px |
+| CF-010 | Author 3 static SVG frames at 1080×1920 (title, flow diagram, data callout) | ready — awaiting approval | — | Files exist; readable at 360 px |
 | CF-011 | Render the 3 frames with an existing tool, no install | blocked | CF-010 | PNGs produced without installing anything |
 | CF-012 | User approves visual language | blocked | CF-011 | Written approval, or a new ADR if the style changes |
 

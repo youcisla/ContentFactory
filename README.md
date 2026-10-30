@@ -13,7 +13,7 @@ Documentation-first repository for an automated educational video pipeline (Mone
 | Audit v1 (machine, dependencies, repos, architecture) | Complete | [`reports/`](reports/) |
 | Audit v2 (four architectures, publishing tools, live GPU pricing) | Complete | [`reports/v2/`](reports/v2/) |
 | Architecture decision | **Proposed** — vector-first spine + remote Blender for hero shots; awaiting sign-off | [ADR-0001](docs/architecture/decisions/ADR-0001-vector-first-spine.md) |
-| Corporate-use approval for this device | **Unresolved — blocks installation** | [Risk R1](docs/risks/RISK_REGISTER.md) |
+| Corporate-use approval for this device | **Approved — user declaration, 2026-10-30** | [Risk R1](docs/risks/RISK_REGISTER.md) |
 | Benchmark B0 | **Not run — awaiting approval** | [`docs/benchmarks/README.md`](docs/benchmarks/README.md) |
 | Implementation | Not started | [`tasks/BACKLOG.md`](tasks/BACKLOG.md) |
 
@@ -68,4 +68,4 @@ Not yet chosen. For a public repository this is a decision that should be made d
 
 ## Next action requiring approval
 
-Run benchmark **B0** (10-second vector render spike). Specification: [docs/benchmarks/README.md](docs/benchmarks/README.md). Nothing else is authorised.
+Run the **R1 visual spike** (three static SVG frames, zero install), then benchmark **B0**. Neither is authorised yet. R1 specification: [tasks/BACKLOG.md](tasks/BACKLOG.md) CF-010; B0: [docs/benchmarks/README.md](docs/benchmarks/README.md).

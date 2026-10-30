@@ -5,7 +5,7 @@ Probability and impact are qualitative until a benchmark exists.
 
 | ID | Risk | P | Impact | Mitigation | Trigger to act | Status |
 |---|---|---|---|---|---|---|
-| R1 | Corporate policy forbids installs or personal commercial use on this device | Medium | **Fatal** | Resolve in writing (G0) before any install; personal device or cloud-only fallback | Policy answer is "no" | **Open — blocking** |
+| R1 | Corporate policy forbids installs or personal commercial use on this device | Medium | **Fatal** | Resolved by user declaration (G0); personal device or cloud-only fallback remains available | Policy reversal | **Closed — user declaration 2026-10-30** |
 | R2 | Local render too slow to iterate | High | High | B0 measures it; fallback to cloud GPU or reduced complexity | 10 s test > 10 min | Open |
 | R3 | Disk exhaustion during production | Medium | High | Disk guard (refuse <15 GB, abort <8 GB); per-episode purge; external SSD | Free space <15 GB | Open |
 | R4 | Factual error ships | Medium | High | G1 claims gate enforced at schema level; correction policy (Q8) | Any post-publish correction | Open |

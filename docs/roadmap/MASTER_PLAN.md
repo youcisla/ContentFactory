@@ -28,17 +28,17 @@ Produce original educational videos (Money · Technology · Digital Safety) in 9
 
 | Item | State |
 |---|---|
-| Policy approval for this device (G0) | **Blocked — unresolved** |
+| Policy approval for this device (G0) | **Approved** — user declaration, 2026-10-30 |
 | Architecture decision | Proposed (ADR-0001) — awaiting user sign-off |
 | Benchmark B0 | Authorised: **no** |
 | Implementation | Not started |
-| Current phase | R0 |
+| Current phase | R1 |
 
 ## 5. Phases
 
 | Phase | Goal | Depends on | Gate to exit | Status |
 |---|---|---|---|---|
-| **R0** | Resolve corporate-use policy and host choice | — | Written answer covering installation and personal commercial use | **Blocked** |
+| **R0** | Resolve corporate-use policy and host choice | — | Written answer covering installation and personal commercial use | Done — user declaration 2026-10-30 |
 | **R1** | Zero-install visual-language spike (3 SVG frames) | R0 or explicit risk acceptance | User approves the look | Not started |
 | **R2** | **B0 benchmark** — 10 s vector render | R1 | Pass: ≤3 min, ≤1.5 GB RAM, ≤15 MB, legible at 360 px | Not authorised |
 | **R3** | Spine: schemas, frame generator, rasteriser, encoder | R2 pass | Re-render produces identical frames for static scenes | Not started |
