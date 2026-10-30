@@ -347,3 +347,143 @@ Rule: every user prompt gets a **BEFORE** entry (plan, assumptions, risks) and a
 - P5 from the product pass: script, factual verification and narration have no work behind them at all.
 
 **Next:** approval needed on remote render (B1) or B0 (B2) before any further rendering.
+
+---
+
+## 2026-10-30 · V4 quality validation + architecture correction
+
+### BEFORE
+
+**Prompt (summary):** The corrected Eevee *measurements* are accepted; the *visual-quality and architecture* decisions are not. Nine tasks: update ADR-0001/0002 with measured data; compare 8/32/64 samples on crops, edges, shadows, reflections and noise rather than mean luminance; test temporal flicker; write an objective visual-QA spec; preserve the scene and its sources; find the smallest useful local animation benchmark; reassess local Eevee for hero shots/previews/unattended; fix stale docs; adversarial review scored on observable evidence. Produce a contact sheet if the proof image exists.
+
+**Hard constraint repeated by the user:** no installs, no cloud purchase, no heavy benchmarks, no commit, no push, no full pipeline.
+
+**Plan**
+1. Re-render the *current* scene at 8/32/64 with identical shadow settings, so the sample comparison is not confounded by material or lighting changes made after the first curve.
+2. Write a comparison tool: per-region crops, edge-gradient statistics, flat-region noise variance, RMSE/PSNR against the 64-sample reference.
+3. Temporal test: render the same static frame twice at 8 samples and measure pixel difference. TAA sampling noise is what flicker looks like.
+4. Contact sheet from actual crops.
+5. Docs, ADR amendments, QA spec, scorecard.
+
+**Thinking**
+- The previous claim "8, 32 and 64 samples are visually identical" rested on mean luminance to four decimals. That is a weak test: mean luminance is blind to noise, to edge stability and to shadow stippling. If it is wrong, it is wrong in exactly the place that matters.
+- The earlier `spp8/32/64` frames predate the material, card-detail and lighting fixes. Comparing them to each other is valid, but comparing them to `proof_final` is not.
+- Flicker is the decisive question for animation. A frame that looks fine alone can strobe when 240 of them run.
+
+**Risks**
+- Re-rendering may push past the "no heavy benchmarks" line. Mitigation: three stills at ~51 s total plus two 8-sample frames, all 1080×1920, all bounded.
+- The comparison could invalidate the earlier "8 samples is enough" claim. That is the point of running it.
+
+**Success criteria**
+- Every claim in the sample-count table is backed by a number computed from pixels, not by eye.
+- A contact sheet exists showing where the image is strong and where it fails.
+- The architecture recommendation states what changed and why, or states that nothing changed and why.
+
+### AFTER
+
+**The earlier claim was wrong and is withdrawn.** "8, 32 and 64 samples are visually identical" was based on mean luminance. Region-level SSIM refutes it.
+
+**Renders** (identical scene, default shadows, 1080×1920): 8 spp **7.13 s**, 32 spp **15.67 s**, 64 spp **25.15 s**. 8 spp + raised shadow sampling **11.02 s**.
+
+**Per-region convergence vs 64-sample reference:**
+
+| Region | 8 vs 64 SSIM | 32 vs 64 SSIM | 8+shadow SSIM |
+|---|---:|---:|---:|
+| card | 0.9989 | 0.9997 | — |
+| rings | 0.9983 | 0.9994 | — |
+| background | 0.9988 | 0.9995 | — |
+| bevel | 0.9689 | 0.9941 | **0.9844** |
+| **floor** | **0.7876** | **0.9292** | **0.8447** |
+| whole frame | 0.9565 | 0.9878 | — |
+
+- **Floor is the failure.** It never converges below 64 samples. Cause is glossy specular sampling, not shadows — raising shadow quality moved it only 0.788 → 0.845.
+- **Whole-frame SSIM 0.9565 masked it.** Averaging a converged card against a failing floor produced "acceptable". That is why QA-7 now requires per-region convergence.
+- **Bevel noise IS shadow sampling** — 0.9689 → 0.9844, into range, for 1.55× the time.
+
+**Temporal stability — good result.** Three static frames at 8 samples are **bit-identical**: SSIM 1.000000, PSNR infinite on all three pairs. Eevee's TAA is deterministic here, so there is no Monte-Carlo flicker component. Caveat: a static-scene test proves determinism, not the absence of flicker under motion.
+
+**Contact sheet:** `tools/blender-test/contact_sheet.png` — 5 regions × (8 samples | 64 samples). Confirms by eye what the metrics say: card/rings/background indistinguishable, bevel grainy, floor heavily stippled at 8.
+
+**The substantive finding:** the biggest local performance lever is not sample count or resolution — it is **whether the floor reflects**. Matte floor at 8 spp: 28 min per 10 s. Glossy floor at 64 spp: 100 min. A 3.6× span decided by art direction, not by settings. That belongs in `BENCHMARK_SPEC_PREMIUM.md`.
+
+**ADRs amended, statuses preserved as `proposed`.** ADR-0001: the "Eevee unmeasured" rejection reason is now measured; spine decision unaffected because it rests on determinism and cost, not Eevee speed. ADR-0002: two premises corrected — Eevee is measured, and the $0.108/h GPU figure was a spot outlier (verified $0.34–0.41/h).
+
+**Not done**
+- No motion rendered. CF-028 is the smallest test that produces it and is now the open approval request.
+- QA-4/5/6/9/10 specified, not implemented.
+- No hash manifest for the evidence PNGs, which stay gitignored.
+
+**Scores** (`docs/reviews/V4_VALIDATION_2026-10-30.md`): engineering 4.5, hardware 4.5, documentation 4, tool discovery 4, architecture 3.5, visual 3, production readiness 1.5. **Visual did not improve** — the round found a defect rather than fixing one.
+
+**What to improve**
+- A3 is the highest-value open engineering item: the floor is both the worst region and the bottom third of frame (C8).
+- The matte-vs-glossy floor decision must be made in the creative spec before any further render benchmarking, because it sets the entire local budget.
+
+**Next:** CF-028 approval — 24 frames, 540×960, 8 samples, ~3 min, €0.
+
+---
+
+## 2026-10-30 · CF-028 executed · first motion
+
+### BEFORE
+
+**Prompt:** "approved" — CF-028 authorised.
+
+**Scope as approved:** 24 frames, 540×960, 8 TAA samples, encoded with FFmpeg. Under 3 minutes, €0, no install.
+
+**Plan**
+1. Render 24 frames with the existing camera orbit (1.5°/frame, 34.5° total).
+2. Encode with libx264, yuv420p, constant quality.
+3. Verify the MP4 with ffprobe: frame count, duration, dimensions.
+4. Compute frame-to-frame SSIM across the moving sequence — the flicker test the static scene could not provide.
+5. Compare measured render time against the estimate from `SAMPLE_AND_TEMPORAL_QA.md` §5.
+
+**Thinking**
+- This is the first moving image the project has produced. Its purpose is not beauty; it is to answer whether an animated sequence exposes instability the static test hid.
+- The estimate (~108 s) comes from `t ≈ 2.8 + 3.32 µs × px` at 8 samples. Shadow quality is left at its raised default, so the real number will be higher. That discrepancy is itself a result worth recording.
+- 1 second is enough to see whether consecutive frames differ smoothly or stutter. It is not enough to judge pacing.
+
+**Risks**
+- The 1.5°/frame orbit may be too fast or too slow to read at 24 fps.
+- 540×960 is a preview grade; grain visible at half resolution will differ from the 1080×1920 measurements.
+- Encoding might fail on an odd dimension; 540×960 are both even, so yuv420p is safe.
+
+**Success criteria**
+- A valid MP4 exists, 24 frames, 1.0 s, 540×960.
+- Measured render time recorded, compared to the 108 s estimate.
+- Frame-to-frame SSIM recorded for all 23 adjacent pairs.
+
+### AFTER
+
+**Produced:** `tools/blender-test/cf028.mp4` — 540×960, 24 frames, 1.000 s @ 24 fps, h264, 136,429 bytes. The first moving image in the project.
+
+**Measured cost**
+
+| Metric | Value |
+|---|---|
+| Total wall clock | **74.6 s** |
+| First frame | 4.07 s |
+| Median frame | **2.42 s** |
+| Setup | 1.65 s |
+| **10 s at 540×960** | **≈ 9.7 min — fits the ≤15 min V4 budget** |
+
+The §5 estimate was ~108 s; actual 74.6 s. The estimate was 31 % conservative.
+
+**Temporal stability — pass.** All 23 adjacent-frame SSIM pairs between **0.9589 and 0.9718**, mean 0.9684, monotonic with a 0.013 spread. No outliers, no dropped or duplicated frames, **no flicker**.
+
+**Defect F1 — exposure drift 32 %.** Per-frame YAVG falls monotonically 69.61 → 47.35 across 24 frames. The camera orbits out of a world-fixed key light. Not flicker; a one-directional fade. **The gate failed on frame 24 (`p99 = 0.6676 < 0.70`) and was correct to** — the frame genuinely lost its highlights. Root cause is scene construction: the lights do not follow the camera, so any orbit is a turntable with a fixed key. Fix is CF-030.
+
+**Defect F2 — the gold chip renders black.** `metallic = 1.0` has no diffuse term; at frame 24 nothing bright is in the reflection cone, so the chip returns near-zero. Fix is CF-031 (environment source, or drop metallic to ~0.85).
+
+**Gate semantics is now a known defect.** An absolute per-frame threshold flags a legitimately darker frame without distinguishing "broken image" from "shot drifted". QA-2 needs to be evaluated across the sequence, not on the last frame.
+
+**What this changed**
+- Half-resolution 10 s clips are now **measured viable locally at 9.7 min** — previously only estimated.
+- Motion is confirmed deterministic and smooth; the earlier static-frame result holds under animation.
+- Two real defects surfaced that no still could have shown: exposure drift and metals in vacuum.
+
+**What to improve**
+- CF-030 and CF-031 are both cheap and both block any believable orbit.
+- The orbit's 1.5°/frame was chosen arbitrarily. Pacing has never been judged by a human.
+
+**Next:** CF-030 (camera-relative lighting) and CF-031 (environment reflection) — both repository-local, both €0.

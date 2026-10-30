@@ -249,15 +249,18 @@ except Exception as exc:
 
 # Shadow quality. At default settings the soft penumbra on the terminal's
 # bevel showed as horizontal bands that read as a rendering artefact.
-for attr, val in (
-    ("use_shadow_jitter", True),
-    ("shadow_ray_count", 4),
-    ("shadow_step_count", 12),
-):
-    try:
-        setattr(scene.eevee, attr, val)
-    except Exception:
-        pass
+# CF_SHADOW_QUALITY=0 renders with Blender defaults, so sample-count
+# comparisons are not confounded by shadow settings.
+if os.environ.get("CF_SHADOW_QUALITY", "1") != "0":
+    for attr, val in (
+        ("use_shadow_jitter", True),
+        ("shadow_ray_count", 4),
+        ("shadow_step_count", 12),
+    ):
+        try:
+            setattr(scene.eevee, attr, val)
+        except Exception:
+            pass
 
 # Bug 4 fix: state the view transform explicitly instead of inheriting AgX blindly,
 # then compensate exposure so a dark art direction still reads.
@@ -312,7 +315,11 @@ def probe_gpu():
 
 frame_times = []
 if FRAMES > 1:
-    orbit_camera(FRAMES)
+    # CF_ANIMATE=0 keeps the scene static across frames. Any pixel difference
+    # between static frames is temporal sampling noise, which is what flicker
+    # in a 240-frame sequence looks like.
+    if os.environ.get("CF_ANIMATE", "1") != "0":
+        orbit_camera(FRAMES)
     for f in range(1, FRAMES + 1):
         scene.render.filepath = os.path.join(OUT_DIR, f"{TAG}_f{f:04d}.png")
         scene.frame_set(f)

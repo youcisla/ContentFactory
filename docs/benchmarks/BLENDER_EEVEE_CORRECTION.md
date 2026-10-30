@@ -53,7 +53,9 @@ Scene: `tools/blender_scene_proof.py` — 14 materials, emissive screen, emissiv
 | 32 | **15.67 s** | 0.4534 | 0.999 | 62.7 min |
 | 64 | **29.14 s** | 0.4534 | 0.999 | 116.6 min |
 
-**The mean luminance is identical to four decimal places across 8, 32 and 64 samples.** For a static product shot with area lights and no depth of field or motion blur, the extra 56 samples buy no observable image quality. This is a measured result, not a preference.
+**The mean luminance is identical to four decimal places across 8, 32 and 64 samples.**
+
+> **Correction, same day.** That sentence originally concluded "the extra 56 samples buy no observable image quality." **That conclusion is withdrawn.** Mean luminance is blind to noise. Region-level SSIM shows 8 samples failing badly on a glossy floor (0.788) while converging on the card, rings and background (≥ 0.998). Full evidence and the corrected per-region verdicts: [`SAMPLE_AND_TEMPORAL_QA.md`](SAMPLE_AND_TEMPORAL_QA.md). The *timings* above remain valid; only the quality conclusion changed.
 
 Linear fit: `t ≈ 2.25 + 0.401 × samples` seconds.
 

@@ -51,3 +51,34 @@ Manim may be added later for mathematical topics. Blender is not part of the spi
 ## Review trigger
 
 Revisit if B0 fails, if more than ~30 % of planned episodes are spatial rather than conceptual, or if audience retention shows the visual style is insufficient.
+
+---
+
+## Amendment — measured Eevee evidence (2026-10-30)
+
+**Status unchanged: still `proposed`.** This amendment records evidence; it does not accept the ADR.
+
+### What the original text got wrong
+
+The "B — Manim + local Eevee" rejection read *"Eevee on an unsupported iGPU is unmeasured"*. It is now measured, and the premise behind that rejection is partly obsolete.
+
+### Measured, 1080×1920
+
+| Fact | Value | Source |
+|---|---|---|
+| GPU backend | Intel Graphics, OpenGL 4.6.0 build 32.0.101.8860 — **hardware, not software** | `BLENDER_EEVEE_CORRECTION.md` §2 |
+| 8 TAA samples | 7.13 s/frame | this ADR amendment |
+| 32 TAA samples | 15.67 s/frame | same |
+| 64 TAA samples | 25.15 s/frame | same |
+| 240 frames at 32 spp | **63 min** | computed |
+| Temporal stability | static frames bit-identical (SSIM 1.000000) | `SAMPLE_AND_TEMPORAL_QA.md` |
+
+### What this does to this ADR
+
+The spine decision rests on *determinism, toolchain size and cost*, not on Eevee's speed. None of those changed. Local Eevee at 63–100 min per 10 s remains far outside a production loop, so "Blender is not part of the spine" is **unchanged**.
+
+One clause does need to soften. The Consequences section says *"no depth, lighting, or material realism. If the channel's identity depends on continuous 3D camera work, this decision is wrong."* The measured evidence shows 3D realism is now **reachable but not locally renderable in motion**. That strengthens the case for a hybrid (A spine + remote D for hero shots) rather than for replacing A.
+
+### New review trigger
+
+Revisit if a 10-second hero shot can be rendered locally in under 5 minutes at production quality. Current best is 63 min at the lowest quality that clears the QA bar.

@@ -32,6 +32,8 @@ Produce original educational videos (Money · Technology · Digital Safety) in 9
 | Architecture decision | Proposed (ADR-0001) — awaiting user sign-off |
 | Benchmark B0 (vector render) | Authorised: **no** — separate from the Eevee work already done |
 | Visual benchmark (V0–V3) | POC built, **64/100** — rejected as creative standard, accepted as technical baseline |
+| V4 technical validation | Sample-count and temporal behaviour measured. 8 samples fails on a glossy floor (SSIM 0.788); static frames are bit-identical. `docs/benchmarks/SAMPLE_AND_TEMPORAL_QA.md` |
+| Creative direction | **Awaiting user approval** — no look has been accepted |
 | Premium 3D feasibility (CF-018) | Complete — `docs/research/blender-feasibility/` |
 | Blender capability on this host | **Measured** — 5.2.3 installed; Eevee renders headlessly on Intel OpenGL 4.6; GPU backend confirmed, not a software fallback (`docs/benchmarks/BLENDER_EEVEE_CORRECTION.md`) |
 | V4 one-scene gate | **Open** — install and capability are settled; scene quality and render budget are not. Automation deliberately deferred |

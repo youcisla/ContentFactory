@@ -47,3 +47,45 @@ Blender is used **only for short 3D hero shots** (3–8 seconds, at most two per
 - `reports/v2/04-tts-assets-render-v2.md` §4 — measured GPU prices
 - `reports/01-machine-inventory.md` §3 — no supported Cycles GPU
 - `reports/v2/02-architecture-comparison-v2.md` — architecture D scoring
+
+---
+
+## Amendment — measured Eevee evidence (2026-10-30)
+
+**Status unchanged: still `proposed`.** The original Context is preserved above; two of its premises are now resolved by measurement.
+
+### Premise corrected: "EEVEE … is unmeasured"
+
+It is measured. 1080×1920, three-point lit scene with 14 materials:
+
+| Setting | Render | 240 frames |
+|---|---:|---:|
+| 8 TAA samples | 7.13 s | 28.5 min |
+| 32 TAA samples | 15.67 s | 62.7 min |
+| 64 TAA samples | 25.15 s | 100.6 min |
+| 64 samples + raised shadow sampling | 77.41 s | 310 min |
+
+The GPU is a **hardware** Intel adapter running OpenGL 4.6 — the earlier suggestion that a software fallback might be inflating the number is refuted.
+
+### Premise corrected: the $0.108/h figure
+
+`reports/v2/04` recorded RTX 4090D at **$0.108/h**. A later, wider survey found this was a transient spot price, not a rate. Verified values are **RunPod Community 4090 $0.34/h**, Vast lowest $0.41/h, median $0.67/h (`docs/research/render-alternatives/README.md`). A 10-second scene costs **$0.02–0.10**, not $0.003.
+
+This matters in one direction only: remote is somewhat more expensive than this ADR assumed, and still far cheaper in wall-clock than local.
+
+### New evidence that changes the shape of the decision
+
+**Local Eevee is viable for stills and previews, not for motion.**
+
+| Use | Local verdict | Evidence |
+|---|---|---|
+| Hero still | **Viable** — 25 s at 64 samples | `BLENDER_EEVEE_CORRECTION.md` |
+| Low-res preview | **Viable** — 2.9 s at 108×192 | measured |
+| 10 s sequence | **Not viable** — 28–310 min | measured |
+| Unattended overnight render | **Viable but slow** — deterministic, resumable by frame range | temporal test: static frames bit-identical |
+
+Consequence for this ADR: the guardrail *"hero shots are optional"* becomes *"hero stills may be local; hero motion must be remote."* That is a narrowing, not a reversal.
+
+### Unresolved
+
+Cost per finished minute is still estimated, not invoiced. No remote render has been run. The $0.02–0.10 figure is arithmetic on an unmeasured 1–2 s/frame remote assumption.
