@@ -104,49 +104,26 @@ floor.name = "Floor"
 # dominated the bottom third of frame.
 floor.data.materials.append(material("Floor", (0.008, 0.009, 0.011), 0.55))
 
-# Backdrop: an emissive plate with a soft radial glow behind the subject. It
-# gives the upper third a reason to exist instead of empty gradient, and it is
-# self-lit, so it is unaffected by the light rig.
-bpy.ops.mesh.primitive_plane_add(size=1, location=(0, 1.20, 0.55), rotation=(math.pi / 2, 0, 0))
-backdrop = bpy.context.object
-backdrop.name = "Backdrop"
-backdrop.scale = (4.2, 3.4, 1.0)
-bpy.ops.object.transform_apply(location=False, rotation=False, scale=True)
-bd = bpy.data.materials.new("BackdropMat")
-bd.use_nodes = True
-nt = bd.node_tree
-for n in list(nt.nodes):
-    if n.type != "OUTPUT_MATERIAL":
-        nt.nodes.remove(n)
-out = nt.nodes["Material Output"]
-tex = nt.nodes.new("ShaderNodeTexCoord")
-grad = nt.nodes.new("ShaderNodeTexGradient")
-grad.gradient_type = "SPHERICAL"
-ramp = nt.nodes.new("ShaderNodeValToRGB")
-emis = nt.nodes.new("ShaderNodeEmission")
-tex.location, grad.location, ramp.location, emis.location = (-800, 0), (-600, 0), (-400, 0), (-180, 0)
-ramp.color_ramp.elements[0].position = 0.0
-ramp.color_ramp.elements[0].color = (0.075, 0.090, 0.115, 1.0)
-ramp.color_ramp.elements[1].position = 0.55
-ramp.color_ramp.elements[1].color = (0.002, 0.002, 0.003, 1.0)
-emis.inputs["Strength"].default_value = 1.0
-nt.links.new(tex.outputs["Object"], grad.inputs["Vector"])
-nt.links.new(grad.outputs["Color"], ramp.inputs["Fac"])
-nt.links.new(ramp.outputs["Color"], emis.inputs["Color"])
-nt.links.new(emis.outputs["Emission"], out.inputs["Surface"])
-backdrop.data.materials.append(bd)
+# No backdrop geometry. A plane produced a hard horizontal seam where its edge
+# met the floor. The world gradient below does the same job with no seam, and
+# it gives the metallic chip something to reflect without any extra geometry.
+
 
 # --- terminal: base slab + raised reader head -------------------------------
-term_base = rounded("TermBase", (0.100, 0.078, 0.016), (0, 0, 0.008), bevel=0.005, segments=10)
+term_base = rounded("TermBase", (0.098, 0.104, 0.014), (0, 0.006, 0.007), bevel=0.006, segments=12)
 shell = material("Shell", (0.070, 0.073, 0.080), 0.46, metallic=0.10)
 term_base.data.materials.append(shell)
 
-term_head = rounded("TermHead", (0.100, 0.030, 0.028), (0, 0.024, 0.030), bevel=0.004, segments=10)
+term_head = rounded("TermHead", (0.090, 0.048, 0.034), (0, 0.016, 0.030), bevel=0.009, segments=14, rot=(-0.22, 0, 0))
 term_head.data.materials.append(shell)
 
-screen = rounded("Screen", (0.086, 0.028, 0.0022), (0, 0.022, 0.0475),
-                 bevel=0.0016, segments=4, rot=(-0.35, 0, 0))
-screen_mat = material("Screen", (0.010, 0.075, 0.068), 0.12, emit=(0.05, 0.55, 0.48), emit_str=0.7)
+# Parented to the head so it sits flush on the sloped face. Positioned in
+# world space it protruded through the housing as a bright wedge.
+screen = rounded("Screen", (0.070, 0.030, 0.0014), (0, 0, 0), bevel=0.0012, segments=4)
+screen.parent = term_head
+screen.matrix_parent_inverse = mathutils.Matrix.Identity(4)
+screen.location = (0, 0.0, 0.0176)
+screen_mat = material("Screen", (0.006, 0.045, 0.042), 0.10, emit=(0.04, 0.45, 0.40), emit_str=0.35)
 screen.data.materials.append(screen_mat)
 
 # NFC indicator on the reader face: the visual "the reader saw the card" beat.
@@ -223,14 +200,14 @@ def smoothstep(t):
 # left the top of frame within six frames and the third beat was invisible.
 # A wider lens shows the whole terminal plus the air above it, which is where
 # the story's payoff happens.
-CAM_START = mathutils.Vector((0.255, -0.530, 0.280))
-CAM_END = mathutils.Vector((0.175, -0.375, 0.215))
-TGT_START = mathutils.Vector((0.0, 0.010, 0.085))
-TGT_END = mathutils.Vector((0.0, 0.025, 0.105))
+CAM_START = mathutils.Vector((0.215, -0.470, 0.255))
+CAM_END = mathutils.Vector((0.150, -0.350, 0.205))
+TGT_START = mathutils.Vector((0.0, 0.012, 0.088))
+TGT_END = mathutils.Vector((0.0, 0.028, 0.100))
 
 bpy.ops.object.camera_add(location=CAM_START)
 cam = bpy.context.object
-cam.data.lens = 70
+cam.data.lens = 65
 track_to(cam, target)
 scene.camera = cam
 
@@ -261,10 +238,24 @@ for _lt in _lights:
     _lt.parent = rig_root
     _lt.matrix_parent_inverse = rig_root.matrix_world.inverted()
 
+# Studio gradient world: dark below, cool grey above. View-independent fill, so
+# it does not drift as the camera moves, and metal has a gradient to mirror.
 world = bpy.data.worlds.new("W")
 world.use_nodes = True
-world.node_tree.nodes["Background"].inputs[0].default_value = (0.006, 0.007, 0.011, 1.0)
-world.node_tree.nodes["Background"].inputs[1].default_value = 0.25
+_wn = world.node_tree
+_bg = _wn.nodes["Background"]
+_co = _wn.nodes.new("ShaderNodeTexCoord")
+_se = _wn.nodes.new("ShaderNodeSeparateXYZ")
+_rp = _wn.nodes.new("ShaderNodeValToRGB")
+_co.location, _se.location, _rp.location = (-900, 0), (-700, 0), (-500, 0)
+_wn.links.new(_co.outputs["Generated"], _se.inputs["Vector"])
+_wn.links.new(_se.outputs["Z"], _rp.inputs["Fac"])
+_rp.color_ramp.elements[0].position = 0.42
+_rp.color_ramp.elements[0].color = (0.004, 0.005, 0.008, 1.0)
+_rp.color_ramp.elements[1].position = 0.95
+_rp.color_ramp.elements[1].color = (0.200, 0.215, 0.240, 1.0)
+_wn.links.new(_rp.outputs["Color"], _bg.inputs["Color"])
+_bg.inputs["Strength"].default_value = 0.85
 scene.world = world
 
 
@@ -302,7 +293,7 @@ def story(f):
     # Beat 2: the coil energises as the card enters the field.
     coil = smoothstep(min(max((p - 0.16) / 0.22, 0.0), 1.0))
     key_emission_at(coil_mat, 14.0 * coil)
-    screen_mat.node_tree.nodes["Principled BSDF"].inputs["Emission Strength"].default_value = 0.7 + 1.6 * coil
+    screen_mat.node_tree.nodes["Principled BSDF"].inputs["Emission Strength"].default_value = 0.35 + 0.55 * coil
 
     # Beat 3: the reader confirms, then the request departs.
     confirm = smoothstep(min(max((p - 0.42) / 0.14, 0.0), 1.0))
@@ -310,14 +301,17 @@ def story(f):
 
     depart = smoothstep(min(max((p - 0.55) / 0.45, 0.0), 1.0))
     if depart <= 0.0:
-        packet.location = (0.0, 0.020, 0.050)
+        packet.location = (0.0, 0.042, 0.058)
         packet.scale = (0.001, 0.001, 0.001)
     else:
         # End point is chosen to stay inside the framed height: the request
         # must be seen leaving, not leave the frame immediately.
-        a = mathutils.Vector((0.0, 0.020, 0.050))
-        b = mathutils.Vector((0.030, 0.110, 0.155))
-        c = mathutils.Vector((0.012, 0.045, 0.100))
+        # Start behind the reader head so the packet never passes through the
+        # card, and end inside the vertical half-FOV (checked by geometry, not
+        # by re-rendering).
+        a = mathutils.Vector((0.0, 0.042, 0.058))
+        b = mathutils.Vector((0.006, 0.078, 0.168))
+        c = mathutils.Vector((0.004, 0.080, 0.086))
         # Quadratic Bezier: the request leaves the reader and arcs away, rather
         # than travelling in a straight line that reads as a UI animation.
         pos = (1 - depart) ** 2 * a + 2 * (1 - depart) * depart * c + depart ** 2 * b
@@ -389,6 +383,26 @@ print("VERSION", bpy.app.version_string)
 print("ENGINE", scene.render.engine)
 print("SHOT", SHOT)
 
+def project_rect(ob, radius, margin=1.30):
+    """Screen rect that both follows and scales with an object.
+
+    Following alone is not enough. On a dolly the subject grows, so a fixed-size
+    box that tracked position still filled up with subject and its rising mean
+    read as exposure drift. Sizing the box from the projected radius keeps the
+    subject-to-background ratio constant, which is what makes the remaining
+    change actual exposure.
+    """
+    bpy.context.view_layer.update()
+    ndc = world_to_camera_view(scene, cam, ob.matrix_world.translation)
+    sx = scene.render.resolution_x * RES_PCT / 100.0
+    sy = scene.render.resolution_y * RES_PCT / 100.0
+    d = (ob.matrix_world.translation - cam.location).length
+    half = radius * (cam.data.lens / 36.0) * sy / max(d, 1e-4) * margin
+    return (ndc.x * sx - half, (1.0 - ndc.y) * sy - half, 2 * half, 2 * half)
+
+
+REGION_TRACK = {"card": [], "chip": [], "terminal": []}
+
 frame_times = []
 paths = []
 
@@ -398,6 +412,8 @@ if FRAMES > 1:
         path = os.path.join(OUT_DIR, f"{TAG}_f{f:04d}.png")
         scene.render.filepath = path
         scene.frame_set(f)
+        for _n, _o, _r in (("card", card, 0.050), ("chip", chip, 0.007), ("terminal", term_base, 0.062)):
+            REGION_TRACK[_n].append(project_rect(_o, _r))
         t0 = time.perf_counter()
         bpy.ops.render.render(write_still=True)
         dt = time.perf_counter() - t0
@@ -445,11 +461,7 @@ lines = [
 ]
 
 if FRAMES > 1:
-    regions = {
-        "card": screen_rect(card, 0.075),
-        "chip": screen_rect(chip, 0.030),
-        "terminal": screen_rect(term_base, 0.075),
-    }
+    regions = REGION_TRACK
     curve = [float(x) for x in EXPECTED.split(",") if x.strip()] or None
     qa = cf_qa.sequence_qa(paths, SHOT, regions=regions, expected=curve)
     whole = qa["whole"]

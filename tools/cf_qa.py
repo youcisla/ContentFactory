@@ -85,6 +85,9 @@ def measure_rect(path, rect):
     lum = _luma(rgb[y0:y1, x0:x1])
     return {
         "mean": float(lum.mean()),
+        # Median is far less sensitive to how much subject has grown into the
+        # rectangle, which is what breaks fixed rects on a dolly.
+        "median": float(np.median(lum)),
         "p99": float(np.percentile(lum, 99)),
         "empty": False,
     }
@@ -157,7 +160,15 @@ def sequence_qa(frame_paths, shot="product_motion", regions=None, expected=None)
     if regions:
         out["regions"] = {}
         for name, rect in regions.items():
-            series = [measure_rect(p, rect)["mean"] for p in frame_paths]
+            # rect may be one static rect, or one rect per frame. Per-frame
+            # rects follow the object, so a dolly-in no longer reads as drift.
+            tracked = isinstance(rect, list) and rect and isinstance(rect[0], (list, tuple))
+            series = []
+            for i, p in enumerate(frame_paths):
+                r = rect[i] if tracked and i < len(rect) else (rect if not tracked else None)
+                if r is None:
+                    continue
+                series.append(measure_rect(p, r)["median"])
             series = [v for v in series if v == v]  # drop NaN
             m = series_metrics(series)
             if m:

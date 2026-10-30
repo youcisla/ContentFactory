@@ -642,3 +642,48 @@ The §5 estimate was ~108 s; actual 74.6 s. The estimate was 31 % conservative.
 - The packet path ended 17.8° off the view axis against a 14.4° half-FOV — outside the frame by construction. Found by computing the angle rather than by re-rendering.
 
 **Next:** CF-034 (packet trajectory), CF-035 (dolly QA), CF-036 (backdrop seam, terminal silhouette). None requires approval beyond a go-ahead; all are repository-local and €0.
+
+---
+
+## 2026-10-30 · Autonomous run · candidate B + end of bounded cycle
+
+### BEFORE
+
+**Prompt:** autonomous studio mode. Fix CF-034/035/036, establish premium art direction across up to two candidates, build a complete educational shot, score to 90/100. Bounded: max three creative revisions per candidate, max two candidates before reassessment, one render worker.
+
+**Plan:** one new candidate (B) rather than a third revision of A — A had already absorbed four passes.
+
+### AFTER
+
+**Candidate B changes**
+- World gradient replaced the backdrop plane. **Seam removed**, and metals gained a gradient to reflect with no added geometry.
+- Terminal head re-proportioned, sloped, with the screen parented to it in local space so it cannot protrude.
+- Card keeps coil, chip, stripe; terminal keeps an NFC indicator.
+- Packet start moved behind the reader head; arc re-routed.
+- Camera 65 mm, eased dolly.
+- `cf_qa` extended: per-frame region rects, **scaled by projected radius** so coverage stays constant as the subject grows.
+
+**Measured**
+
+| Metric | Candidate A | Candidate B |
+|---|---:|---:|
+| Mean luminance | 0.2846 | 0.2624 |
+| p99 | 0.9947 | 0.9983 |
+| `frame_gate` | PASS | **PASS** |
+| `seq_max_deviation` | 10.95 % | 10.44 % |
+| `seq_flicker_index` | 0.00292 | 0.00293 |
+| `region_card_deviation` | 86.0 % | **30.5 %** |
+| `region_chip_deviation` | 79.7 % | **50.7 %** |
+| `region_terminal_deviation` | 101.6 % | **17.9 %** |
+| `region_card_flicker` | 0.04235 | **0.00575** |
+| per-frame 540×960 @8 spp | 2.73 s | **2.40 s** |
+
+**CF-035 is most of the way solved.** Tracking alone cut region flicker 5×; scaling the rect by projected radius cut deviation roughly in half again. What remains is not a measurement artefact: the subject really does brighten as the dolly closes (inverse square), and the coil and screen are scripted to brighten. Separating those two needs a declared expected curve — the mechanism exists (`CF_EXPECTED_CURVE`) and is unused.
+
+**CF-034 partial.** The packet no longer intersects the card. At frame 24 it is still a dot at the frame edge and leaves. Second reduction needed.
+
+**CF-036 partial.** Seam gone. Terminal still reads as stacked rounded boxes; the screen reads as a teal slab rather than a display.
+
+**Bounded cycle exhausted.** Three creative revisions on A, one full rebuild as B. Remaining defects are art-direction defects, not defects another render pass would remove: the scene is grey-on-grey with no palette, no depth of field, and a subject that occupies a third of the frame.
+
+**Score: 57/100** (see §11 of `SAMPLE_AND_TEMPORAL_QA.md` computation). Below the 90 bar. Stopping per the bounded-cycle rule rather than producing a third candidate without a creative direction from the user.
