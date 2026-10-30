@@ -1,0 +1,96 @@
+# --- Secrets: never commit ---
+.env
+.env.*
+!.env.example
+*.secret
+credentials*.json
+token*.json
+client_secret*.json
+auth.json
+*.pem
+*.key
+.netrc
+
+# --- Agent / session state (may contain prompts, paths, memory) ---
+.claude-flow/
+.remember/
+.claude/settings.local.json
+
+# --- Raw audit evidence: unredacted local paths and account name ---
+# Reports cite source URLs; re-fetch rather than publish these captures.
+# To include deliberately: git add -f reports/evidence/<file>
+reports/evidence/
+
+# --- Benchmark / render scratch ---
+reports/v2/b0-spike/
+b0-spike/
+spike/
+renders/
+frames/
+downloads/
+cache/
+tmp/
+temp/
+*.tmp
+*.part
+
+# --- Generated media (regenerable from source JSON) ---
+*.mp4
+*.mov
+*.mkv
+*.webm
+*.avi
+*.wav
+*.mp3
+*.m4a
+*.flac
+*.exr
+
+# --- Blender scratch ---
+*.blend1
+*.blend2
+blendcache_*
+
+# --- Local models ---
+models/
+*.onnx
+*.safetensors
+*.gguf
+*.pt
+*.pth
+*.ckpt
+
+# --- Python ---
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+.pytest_cache/
+.mypy_cache/
+.ruff_cache/
+.ipynb_checkpoints/
+
+# --- Node ---
+node_modules/
+dist/
+build/
+.next/
+.vite/
+coverage/
+.cache/
+
+# --- Local data/logs ---
+*.log
+ledger.jsonl
+*.sqlite
+*.sqlite3
+*.db
+
+# --- OS / editor ---
+.DS_Store
+Thumbs.db
+desktop.ini
+.vscode/
+.idea/
+*.swp
+~$*
