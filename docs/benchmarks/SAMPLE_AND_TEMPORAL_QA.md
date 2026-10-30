@@ -306,3 +306,79 @@ The residual comes from what does not rotate: the near-black world is fixed, and
 - **`seq_flicker_index`** — mean absolute second difference of the luma series, normalised. A smooth ramp has near-zero curvature; flicker does not. This is what separates "the shot dimmed" from "the shot strobed".
 
 Setting `CF_INTENTIONAL_DRIFT=1` reclassifies a drift failure as `INFO(intentional-drift)` rather than `FAIL`, so a scripted light move is distinguishable from an accidental one. Without the flag, drift beyond 5 % fails.
+
+---
+
+## 10. V4 cinematic scene and corrected QA system
+
+`tools/blender_scene_v4.py` + `tools/cf_qa.py`. The Rig A baseline `blender_scene_proof.py` is untouched.
+
+### 10.1 QA system changes
+
+| Requirement | Implementation |
+|---|---|
+| `gate` no longer ambiguous | split into **`frame_gate`** (one frame, with `frame_gate_reason`) and **`seq_verdict`** (the sequence) |
+| Region-specific temporal QA | `region_<name>_deviation`, `_flicker`, `_first`, `_last` for card, chip, terminal |
+| Thresholds by shot type | `SHOT_THRESHOLDS` for `product_still`, `product_motion`, `diagram`; selected with `CF_SHOT` |
+| Documented expected curve | `CF_EXPECTED_CURVE` → `seq_expected_curve_error`; without a curve, drift >5 % fails |
+| Historical evidence preserved | `BLENDER_EEVEE_CORRECTION.md`, §2–§9, and every `.txt` report unchanged |
+
+### 10.2 Scene changes
+
+| Before (proof scene) | Now |
+|---|---|
+| Three floating torus rings | A four-sided antenna coil inset in the card, which energises |
+| Constant 1.5°/frame orbit | Eased dolly-in, 55–70 mm |
+| Flat gradient background | Emissive radial backdrop |
+| Glossy floor dominating the lower third | Matte floor at roughness 0.55 |
+| Card only | Card, chip, stripe, coil, terminal head, screen, NFC indicator, departing packet |
+
+### 10.3 Measurements
+
+| Item | Value |
+|---|---|
+| Stills, 1080×1920, 24–32 spp | 18.4 – 43.3 s each |
+| Sequence, 24 frames, 540×960, 8 spp | median **2.73 s**/frame |
+| 240 frames at that rate | **658 s ≈ 11.0 min** |
+| `frame_gate` (final frame) | **PASS** — mean 0.2846, p99 0.9947 |
+| `seq_max_deviation` | **10.95 %** |
+| `seq_drift` | **+10.34 %** |
+| `seq_flicker_index` | **0.00292** |
+
+### 10.4 The QA did its job — and exposed a criterion that does not fit
+
+`seq_verdict` = **FAIL**: whole-frame deviation 11 % > 5 %, and every region far worse (card 86 %, chip 80 %, terminal 102 %).
+
+**Neither failure is an image defect.** Both are consequences of the shot type:
+
+- **A dolly-in must brighten.** The camera moves from 0.53 m to 0.38 m, so the lit subject occupies more of the frame. A 10 % mean rise is the arithmetic of the move, not exposure drift. The ±5 % criterion was derived from CF-028's orbit, where framing was constant.
+- **Fixed region rects are invalid under a dolly.** A rectangle sized around the card at frame 1 contains mostly background; by frame 24 it is full of card. The 86 % "deviation" measures the subject growing into the box, not a lighting change.
+
+**This is the evidence item 1 was asking for.** "Make exposure thresholds configurable by shot type" needed a second shot type to exist before the thresholds could be set correctly. They still are not: a `dolly` shot type needs either an exposure measure invariant to subject scale, or region rects that track objects per frame.
+
+Recorded as **CF-035**, open.
+
+### 10.5 Visual defects found on inspection
+
+| ID | Defect | Severity |
+|---|---|---|
+| V1 | **The packet passes through the card.** It starts at (0, 0.020, 0.050), inside the reader head, and its Bezier arc takes it straight through the card body around frame 12–14. | **High** |
+| V2 | **The packet leaves frame at the end** — visible as a dot at the top-right corner of frame 24, then gone. The third beat is only half legible. | **High** |
+| V3 | **Backdrop seam.** A hard horizontal edge crosses the upper third where the backdrop plane ends. | Medium |
+| V4 | **The terminal reads as two stacked boxes**, not a card reader. The head needs a defined bezel and the screen needs to face camera. | Medium |
+| V5 | The card is still untextured apart from chip, stripe and coil — no number block, no branding. | Medium |
+
+**Creative verdict: not accepted.** The scene now has a story structure and the coil is accurate, but the payoff beat is physically broken (V1) and then invisible (V2). Fixing V1 and V2 is the entire difference between "a card hovering over a box" and "the request leaves".
+
+### 10.6 Cost comparison against the Rig A baseline
+
+| | Rig A baseline | V4 |
+|---|---:|---:|
+| Per frame, 540×960, 8 spp | 2.10 s | 2.73 s (+30 %) |
+| Stills at 1080×1920 | 11.8–37.5 s | 18.4–43.3 s |
+
+The 30 % is the backdrop emission and the additional objects. Against the target "no material increase without demonstrated visual benefit", the benefit is real — a graded background and a story — but the shot is not yet good enough to call it earned.
+
+### 10.7 Artifacts
+
+`v4_strip.png` (frames 1/8/16/24), `v4_cf033.mp4`, `v4d_beats.png`, and the per-run `.txt` reports. Earlier proof-scene evidence, including `contact_sheet.png` and `rig_compare.png`, is retained unchanged.

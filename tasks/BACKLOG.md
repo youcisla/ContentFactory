@@ -38,6 +38,10 @@ Status values: `blocked` · `ready` · `in progress` · `done` · `dropped`.
 | CF-030 | Camera-relative light rig (turntable) to remove the 32 % exposure drift | done | — | Rig A: `seq_max_deviation` **3.55 %** (target ≤5 %), flicker index 0.00043. Rig B (fixed + gradient world) failed at 33.50 %. §9 of `SAMPLE_AND_TEMPORAL_QA.md` |
 | CF-031 | Environment reflection source so metallic materials are not black | done | — | Gold chip reads as metal at all 6 stills and both sequences, `metallic` unchanged at 1.0. Both rigs satisfy it |
 | CF-032 | Sequence QA in the scene script — drift and flicker indices replacing SSIM-only continuity | done | — | `seq_max_deviation` and `seq_flicker_index` in every multi-frame run; `CF_INTENTIONAL_DRIFT` separates scripted light moves from accidents |
+| CF-033 | Cinematic V4 scene — coil, indicator, departing packet, eased dolly, emissive backdrop | **built, not accepted** | — | `tools/blender_scene_v4.py`; 24-frame sequence rendered. **Visual acceptance withheld** — see CF-034/035 |
+| CF-034 | Fix packet trajectory — it passes through the card and exits frame | **ready** | — | Packet starts outside the terminal head, arcs clear of the card, and stays inside the framed height for its full travel |
+| CF-035 | Dolly-invariant exposure and region QA — fixed rects inflate as the subject grows; ±5 % drift unfit for a dolly | **ready** | — | A `dolly` shot type whose exposure measure is scale-invariant, and region rects that track objects per frame |
+| CF-036 | Backdrop seam and terminal silhouette | **ready** | — | No visible plane edge in frame; the reader reads as a reader, not stacked boxes |
 | CF-029 | Visual QA automation — QA-4, QA-5, QA-10 from `SAMPLE_AND_TEMPORAL_QA.md` §4 | blocked | CF-028 | Framing, object-visibility and text-size checks run in CI on every render |
 | CF-022 | Automation only after V4 | **blocked** | CF-021 | Visual acceptance precedes batch work |
 | CF-023 | Remote Eevee test — one frame on RunPod Community 4090 ($0.34/h) or Vast 4090 ($0.41/h) | **blocked** | user approval + spend (~$0.05) | Wall clock recorded; cost per 10 s scene computed |

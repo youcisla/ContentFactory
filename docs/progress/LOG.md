@@ -561,3 +561,84 @@ The §5 estimate was ~108 s; actual 74.6 s. The estimate was 31 % conservative.
 **Artifacts:** `rig_compare.png`, `chip_crops.png`, `motion_strip.png`, `regions_compare.png`, `cf030_A.mp4`, `cf030_B.mp4`.
 
 **Next:** creative approval of Rig A. Nothing else should be built until the look is accepted.
+
+---
+
+## 2026-10-30 · V4 cinematic scene + QA system correction
+
+### BEFORE
+
+**Prompt (summary):** Rig A is the technical lighting baseline, **not** the creative standard. CF-030/031 technically complete, visual acceptance pending. Build: a corrected QA system (clear gate naming, region-specific temporal QA, shot-type thresholds, documented expected-exposure curve); a genuinely cinematic composition; and a shot that **teaches** a contactless payment interaction including the authorization request leaving.
+
+**Non-negotiables restated:** no installs, no paid services, no heavy benchmark, no commit/push/publish; do not raise resolution or duration merely to improve a score; stop for creative approval.
+
+**Plan**
+1. Extract QA into `tools/cf_qa.py`: rename `gate` → `frame_gate`, add `seq_verdict` as the sequence answer, add per-region temporal metrics, add shot-type threshold sets, add expected-curve validation.
+2. Leave `blender_scene_proof.py` as the preserved Rig A baseline; build the cinematic scene in a new `tools/blender_scene_v4.py`.
+3. Scene: remove the three floating torus rings. Replace with a card antenna coil that energises, a terminal indicator that confirms, and a discrete packet that departs — approach → couple → confirm → request.
+4. Composition: reduce floor dominance, add a graded backdrop so the upper third carries meaning instead of emptiness, improve terminal proportions and card detail.
+5. Camera: replace the constant 1.5°/frame orbit with an eased dolly-in.
+6. Stills first, then one 24-frame sequence at 540×960 — same resolution and duration as CF-028, not more.
+
+**Thinking**
+- The rings were the worst defect. They were decorative, they read as literal technology, and they taught nothing. Removing them is a correctness fix, not a style choice.
+- A payment explainer must show cause and effect. The chain is: field energises the card's coil → terminal confirms → request departs. Three states, each visible.
+- "Request begins its journey" needs a departure, which needs a destination in frame. That is what the empty top third is for.
+- QA must be able to say "this shot was supposed to dim, and it did" versus "this shot dimmed by accident". That requires an expected curve, not a fixed threshold.
+
+**Risks**
+- A backdrop and a travelling packet add cost. Target says no cost increase without demonstrated benefit — both must be measured.
+- A 1-second shot may be too short for a three-beat story. If so, that is a finding, not a reason to lengthen without approval.
+
+**Success criteria**
+- No field named `gate` remains ambiguous; `frame_gate` and `seq_verdict` are distinct.
+- Per-region drift and flicker reported for card, chip, terminal, background.
+- The three-beat story is legible in stills alone.
+- Cost measured against the Rig A baseline.
+
+### AFTER
+
+**Built:** `tools/cf_qa.py` (shared QA) and `tools/blender_scene_v4.py` (cinematic scene). `blender_scene_proof.py` untouched — the Rig A baseline is preserved.
+
+**QA system — all five items done**
+- `gate` split into `frame_gate` + `frame_gate_reason` and `seq_verdict`. No ambiguous field remains.
+- Per-region temporal QA: `region_card_*`, `region_chip_*`, `region_terminal_*`.
+- `SHOT_THRESHOLDS` for `product_still`, `product_motion`, `diagram`, selected by `CF_SHOT`.
+- `CF_EXPECTED_CURVE` → `seq_expected_curve_error`; without a declared curve, drift >5 % fails rather than being waived.
+- §2–§9 and every existing `.txt` report preserved unchanged.
+
+**Scene — built, not accepted.** Coil replaced the torus rings. Eased dolly replaced the constant orbit. Matte floor, emissive backdrop, terminal head, screen, NFC indicator, departing packet.
+
+**Measured**
+
+| Item | Value |
+|---|---|
+| Stills 1080×1920, 24–32 spp | 18.4–43.3 s |
+| Sequence 24 frames, 540×960, 8 spp | **2.73 s/frame** |
+| 240 frames | **≈ 11.0 min** |
+| `frame_gate` (final frame) | PASS — mean 0.2846, p99 0.9947 |
+| `seq_max_deviation` | **10.95 %** |
+| `seq_flicker_index` | 0.00292 |
+| `seq_verdict` | **FAIL** |
+
+**The QA worked and found a criterion problem, not an image problem.** A dolly-in from 0.53 m to 0.38 m must brighten ~10 % — that is the arithmetic of the move. And fixed region rects inflate as the subject grows: the card "deviates 86 %" because the box fills with card, not because the light changed. Both limits were inherited from the CF-028 *orbit*, where framing was constant. This is the concrete evidence item 1 needed: a `dolly` shot type requires scale-invariant exposure and object-tracking rects. Recorded as **CF-035**, open.
+
+**Visual defects found on inspection**
+
+| ID | Defect | Severity |
+|---|---|---|
+| V1 | Packet passes **through the card** — it starts inside the reader head and the Bezier arc crosses the card body around frames 12–14 | **High** |
+| V2 | Packet **exits frame** at the end — the third beat is half legible | **High** |
+| V3 | Hard horizontal backdrop seam across the upper third | Medium |
+| V4 | Terminal reads as two stacked boxes, not a reader | Medium |
+| V5 | Card has no number block or branding | Medium |
+
+**Creative verdict: not accepted.** The scene has a story structure and an accurate coil, but the payoff beat is physically broken (V1) and then invisible (V2). That is the whole difference between "a card over a box" and "the request leaves".
+
+**Cost:** 2.73 s/frame vs the Rig A baseline's 2.10 s (+30 %), from the backdrop emission and extra objects. The benefit is real but not yet earned, because the shot is not good enough to call it.
+
+**Bugs fixed during the build** — worth recording because both were invisible until rendered:
+- `on_card()` baked `card.matrix_world` once, so the chip, stripe and coil stayed where the card started while the card animated away from them. Fixed by parenting with an identity parent-inverse.
+- The packet path ended 17.8° off the view axis against a 14.4° half-FOV — outside the frame by construction. Found by computing the angle rather than by re-rendering.
+
+**Next:** CF-034 (packet trajectory), CF-035 (dolly QA), CF-036 (backdrop seam, terminal silhouette). None requires approval beyond a go-ahead; all are repository-local and €0.
