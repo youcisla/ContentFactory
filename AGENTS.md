@@ -63,3 +63,39 @@ Strong success criteria let you loop independently. Weak criteria ("make it work
 ---
 
 **These guidelines are working if:** fewer unnecessary changes in diffs, fewer rewrites due to overcomplication, and clarifying questions come before implementation rather than after mistakes.
+
+---
+
+# Project rules — ContentFactory
+
+These override the general guidelines above where they conflict.
+
+## Read first
+
+`README.md` → `docs/roadmap/MASTER_PLAN.md` → `tasks/BACKLOG.md` → `docs/architecture/decisions/` → the relevant `reports/` file.
+
+## Phase
+
+Documentation only. No installs, no environments, no model downloads, no benchmarks, no services, no implementation code until a backlog task is approved and unblocked.
+
+## Source of truth
+
+- Architecture decisions: ADRs in `docs/architecture/decisions/`
+- Phase and gate state: `docs/roadmap/MASTER_PLAN.md`
+- Work items: `tasks/BACKLOG.md`
+- Evidence: `reports/` (append-only; never edit an existing version)
+
+Link between these. Do not copy content between them.
+
+## Safety
+
+- Never commit secrets, tokens, corporate domains, employer names, machine identifiers, or raw audit evidence.
+- Audit reports are immutable; corrections create a new version.
+- A human approves gates G1–G5. No automated publishing.
+- No security control may be disabled, bypassed, or reconfigured to make work possible.
+
+## Change discipline
+
+- Smallest diff. Every line traces to a request.
+- Do not start a benchmark without the approval recorded in `docs/operations/APPROVAL_GATES.md`.
+- Do not commit or push; leave that to the user.
