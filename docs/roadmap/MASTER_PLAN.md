@@ -31,6 +31,7 @@ Produce original educational videos (Money · Technology · Digital Safety) in 9
 | Policy approval for this device (G0) | **Approved** — user declaration, 2026-10-30 |
 | Architecture decision | Proposed (ADR-0001) — awaiting user sign-off |
 | Benchmark B0 | Authorised: **no** |
+| Visual benchmark (V0–V3) | POC built, **64/100** — below 90 bar; awaiting user review (`docs/reviews/VISUAL_BENCHMARK_REVIEW.md`) |
 | Implementation | Not started |
 | Current phase | R1 review — awaiting visual approval; R2 benchmark blocked on G6 |
 
@@ -39,7 +40,7 @@ Produce original educational videos (Money · Technology · Digital Safety) in 9
 | Phase | Goal | Depends on | Gate to exit | Status |
 |---|---|---|---|---|
 | **R0** | Resolve corporate-use policy and host choice | — | Written answer covering installation and personal commercial use | Done — user declaration 2026-10-30 |
-| **R1** | Visual-language spike: 3 static SVG frames + 12 s CSS animation | R0 or explicit risk acceptance | User approves the look | Implemented — awaiting approval (`prototypes/r1`, `prototypes/r2`, review in `docs/reviews/`) |
+| **R1** | Visual-language spike: SVG frames, CSS animation, cinematic WebGL POC | R0 or explicit risk acceptance | User approves the look | Implemented — 64/100, fails premium bar; awaiting V3 (`prototypes/cinematic`, `docs/reviews/VISUAL_BENCHMARK_REVIEW.md`) |
 | **R2** | **B0 benchmark** — 10 s vector render | R1 | Pass: ≤3 min, ≤1.5 GB RAM, ≤15 MB, legible at 360 px | Not authorised |
 | **R3** | Spine: schemas, frame generator, rasteriser, encoder | R2 pass | Re-render produces identical frames for static scenes | Not started |
 | **R4** | Template library (5 templates, both ratios) | R3 | Every template renders cleanly in 9:16 and 16:9 | Not started |
@@ -63,6 +64,7 @@ Full definitions and record locations: [`docs/operations/APPROVAL_GATES.md`](../
 | G4 | Does the render pass legibility and continuity QA? |
 | G5 | Is publication approved, including AI disclosure? |
 | G6 | Is this specific benchmark authorised? |
+| V3 | Does the visual benchmark meet the premium bar and get user creative approval? |
 
 ## 7. Open decisions
 

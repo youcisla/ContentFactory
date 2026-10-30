@@ -25,6 +25,10 @@ Status values: `blocked` · `ready` · `in progress` · `done` · `dropped`.
 | CF-013 | 12 s animated SVG/CSS prototype | done | CF-012 (authorised in advance) | `prototypes/r2/`, validator PASS, 4 states captured |
 | CF-014 | Rust rendering evaluation | done | — | `docs/research/rust-rendering/`; no build, no download |
 | CF-015 | B0 render benchmark | **blocked** | resvg download approval (G6) | Wall clock, RAM, output size recorded |
+| CF-016 | Cinematic treatment + shot list | done | — | `docs/creative/TREATMENT_TAP.md` |
+| CF-017 | WebGL cinematic POC (10 s, 9:16) | done | CF-016 | `the-tap.mp4` rendered; **64/100**, below 90 bar |
+| CF-018 | Visual gate V3 — user creative review | ready — awaiting user | CF-017 | Approve, or redirect with a new treatment |
+| CF-019 | Authoring tool for premium 3D (Blender install or personal GPU machine) | **blocked** | user approval | Blender 5.2.3 installed and rendering, or host changed |
 
 ## Phase 2 — benchmark
 
