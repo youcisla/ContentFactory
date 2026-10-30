@@ -37,6 +37,12 @@ If a request conflicts with an accepted ADR, say so and propose a new ADR rather
 - Do not execute third-party project code.
 - Keep writes inside the repository; do not write outside it without approval.
 
+## Progress logging (mandatory)
+
+Before acting on any user prompt, append a **BEFORE** entry to `docs/progress/LOG.md`: prompt summary, plan, assumptions, thinking, risks, success criteria. After completing, append the **AFTER** entry: what ran, evidence, measurements, decisions, what to improve next.
+
+Keep entries short and factual. Never fabricate results. If an action was blocked, say so in AFTER.
+
 ## Style of work
 
 - Smallest change that satisfies the request.

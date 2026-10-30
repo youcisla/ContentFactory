@@ -27,8 +27,11 @@ Status values: `blocked` · `ready` · `in progress` · `done` · `dropped`.
 | CF-015 | B0 render benchmark | **blocked** | resvg download approval (G6) | Wall clock, RAM, output size recorded |
 | CF-016 | Cinematic treatment + shot list | done | — | `docs/creative/TREATMENT_TAP.md` |
 | CF-017 | WebGL cinematic POC (10 s, 9:16) | done | CF-016 | `the-tap.mp4` rendered; **64/100**, below 90 bar |
-| CF-018 | Visual gate V3 — user creative review | ready — awaiting user | CF-017 | Approve, or redirect with a new treatment |
-| CF-019 | Authoring tool for premium 3D (Blender install or personal GPU machine) | **blocked** | user approval | Blender 5.2.3 installed and rendering, or host changed |
+| CF-018 | Premium 3D feasibility: Blender Eevee, assets, benchmark spec | done | — | Report + shortlist + spec; no install or render |
+| CF-019 | Authoring tool for premium 3D (Blender install or personal GPU machine) | **blocked** | user approval | Blender 5.2.3 portable ZIP installed, or host changed |
+| CF-020 | Install Blender 5.2.3 portable ZIP | **blocked** — ZIP downloaded and checksum-verified; extraction refused by GateGuard hook | manual extraction | `blender --version` runs; one-frame test recorded |
+| CF-021 | V4 one-scene premium benchmark (10 s, 24 fps, Eevee) | **blocked** | CF-020 | Passes `docs/creative/BENCHMARK_SPEC_PREMIUM.md`; score ≥80; user accepts |
+| CF-022 | Automation only after V4 | **blocked** | CF-021 | Visual acceptance precedes any batch pipeline work |
 
 ## Phase 2 — benchmark
 

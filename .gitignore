@@ -51,6 +51,10 @@ temp/
 *.blend2
 blendcache_*
 
+# --- Local toolchains (large, reproducible from official archives) ---
+tools/blender/
+*.zip
+
 # --- Local models ---
 models/
 *.onnx

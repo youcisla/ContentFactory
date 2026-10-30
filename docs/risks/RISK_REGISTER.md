@@ -19,6 +19,10 @@ Probability and impact are qualitative until a benchmark exists.
 | R12 | Cloud GPU price or reliability shifts | Medium | Low | Measured $0.11–0.27/h; 2× sensitivity case; hero shots optional | Price > $0.50/h or repeated interruptions | Open |
 | R13 | Publication leaks identifiers or secrets | Low | High | ADR-0006; `.gitignore`; review before commit | Any sensitive string found in a diff | Open |
 | R14 | Single-maintainer dependency abandoned | Medium | Medium | Prefer projects with releases <90 days; pin versions; exit path per component | No release/commit for 6 months | Open |
+| R15 | Eevee unstable or unusably slow on the iGPU | Medium | **High** | One-frame background test before committing; fallback to remote render | Render fails or >15 min per 10 s scene | Open |
+| R16 | Corporate policy blocks Blender installation | Medium | **High** | Portable ZIP in a project folder; written approval first; remote fallback | Approval refused | Open |
+| R17 | Asset licence contamination from aggregator sites | Medium | Medium | CC0 sources only for environment; model hero props; record licence per asset | Any asset without provenance | Open |
+| R18 | Disk pressure from Blender + assets + frames | High | Medium | Disk guard; purge frames after encode; external SSD option | Free space <15 GB | Open |
 
 ## Risk ownership
 

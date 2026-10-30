@@ -31,7 +31,9 @@ Produce original educational videos (Money · Technology · Digital Safety) in 9
 | Policy approval for this device (G0) | **Approved** — user declaration, 2026-10-30 |
 | Architecture decision | Proposed (ADR-0001) — awaiting user sign-off |
 | Benchmark B0 | Authorised: **no** |
-| Visual benchmark (V0–V3) | POC built, **64/100** — below 90 bar; awaiting user review (`docs/reviews/VISUAL_BENCHMARK_REVIEW.md`) |
+| Visual benchmark (V0–V3) | POC built, **64/100** — rejected as creative standard, accepted as technical baseline |
+| Premium 3D feasibility (CF-018) | Complete — Blender Eevee expected supported; install not approved (`docs/research/blender-feasibility/`) |
+| V4 one-scene gate | **Blocked** — needs Blender approval; automation deliberately deferred |
 | Implementation | Not started |
 | Current phase | R1 review — awaiting visual approval; R2 benchmark blocked on G6 |
 
@@ -41,6 +43,7 @@ Produce original educational videos (Money · Technology · Digital Safety) in 9
 |---|---|---|---|---|
 | **R0** | Resolve corporate-use policy and host choice | — | Written answer covering installation and personal commercial use | Done — user declaration 2026-10-30 |
 | **R1** | Visual-language spike: SVG frames, CSS animation, cinematic WebGL POC | R0 or explicit risk acceptance | User approves the look | Implemented — 64/100, fails premium bar; awaiting V3 (`prototypes/cinematic`, `docs/reviews/VISUAL_BENCHMARK_REVIEW.md`) |
+| **V4** | **One excellent scene** — premium 3D benchmark, 10 s @ 24 fps | R1 + Blender approval | Score ≥80 and user accepts the look | **Blocked** — install approval |
 | **R2** | **B0 benchmark** — 10 s vector render | R1 | Pass: ≤3 min, ≤1.5 GB RAM, ≤15 MB, legible at 360 px | Not authorised |
 | **R3** | Spine: schemas, frame generator, rasteriser, encoder | R2 pass | Re-render produces identical frames for static scenes | Not started |
 | **R4** | Template library (5 templates, both ratios) | R3 | Every template renders cleanly in 9:16 and 16:9 | Not started |
@@ -65,6 +68,7 @@ Full definitions and record locations: [`docs/operations/APPROVAL_GATES.md`](../
 | G5 | Is publication approved, including AI disclosure? |
 | G6 | Is this specific benchmark authorised? |
 | V3 | Does the visual benchmark meet the premium bar and get user creative approval? |
+| V4 | Can we render **one excellent scene** (10 s, 24 fps) at premium quality? Automation is out of scope. |
 
 ## 7. Open decisions
 

@@ -94,6 +94,10 @@ Link between these. Do not copy content between them.
 - A human approves gates G1–G5. No automated publishing.
 - No security control may be disabled, bypassed, or reconfigured to make work possible.
 
+## Progress logging
+
+Before acting on a prompt, append a BEFORE entry to `docs/progress/LOG.md` (plan, assumptions, risks). After finishing, append an AFTER entry (results, evidence, decisions). Short, factual, no invented outcomes.
+
 ## Change discipline
 
 - Smallest diff. Every line traces to a request.
