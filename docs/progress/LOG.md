@@ -487,3 +487,77 @@ The §5 estimate was ~108 s; actual 74.6 s. The estimate was 31 % conservative.
 - The orbit's 1.5°/frame was chosen arbitrarily. Pacing has never been judged by a human.
 
 **Next:** CF-030 (camera-relative lighting) and CF-031 (environment reflection) — both repository-local, both €0.
+
+---
+
+## 2026-10-30 · CF-030 / CF-031 · controlled lighting and material validation
+
+### BEFORE
+
+**Prompt (summary):** Implement two lighting candidates — **A** camera-relative studio rig, **B** fixed rig with environmental reflections — compare them on identical camera path, resolution, samples, colour management and output; measure exposure drift, highlight visibility, chip readability, continuity, time and memory; add sequence-level QA that separates intentional lighting change from accidental drift; deliver a contact sheet with chip/terminal/card crops; adversarially review and fix.
+
+**Acceptance targets:** exposure within ±5 %, chip visible as metal throughout the move, no unintended temporal artefacts, no cost increase without demonstrated benefit.
+
+**Plan**
+1. Refactor `blender_scene_proof.py` to build either rig from `CF_RIG=A|B`, keeping every other setting identical.
+2. Rig A: parent the three area lights to an empty and rotate it by the same angle as the camera, so the key never leaves the subject.
+3. Rig B: keep the lights world-fixed; add a procedural vertical-gradient world so metals have something to reflect and the scene gains view-independent fill.
+4. **Do not touch `metallic`.** Fix metals with reflection sources and roughness first, as instructed.
+5. Render stills at orbit positions 0, 12, 24 for both rigs, then a bounded 24-frame run per rig.
+6. Sequence QA: normalised drift, second-difference flicker index, per-frame luma. SSIM alone is explicitly rejected as sufficient.
+
+**Thinking**
+- The 32 % drift is not a renderer problem; the key light is a fixed point and the camera is a moving point. Two honest fixes exist — move the lights with the camera, or make the light less directional. A and B are those two answers.
+- The black chip is a physics consequence: a metal with `metallic = 1.0` has no diffuse term and can only show what it reflects. Changing metallic to hide that would be the wrong fix and is explicitly ruled out.
+- Sequence QA must not simply fail on any change. A deliberate lighting change is legitimate; an unnoticed one is not. The distinguishing rule must be stated in the QA, not applied by eye afterwards.
+
+**Risks**
+- Rig A may look static and lifeless if the lighting never changes with the camera — a known turntable trade-off.
+- Rig B may not fully remove drift, because a fixed key still loses its angle.
+- A gradient world raises render cost; the target says no cost increase without demonstrated benefit, so both must be timed.
+
+**Success criteria**
+- Both rigs rendered under identical settings, timings recorded.
+- Drift measured per rig; at least one within ±5 %.
+- Chip legible in every rendered frame of that rig.
+- A sequence-QA rule written down that distinguishes intended from accidental change.
+
+### AFTER
+
+**Both candidates built behind one switch** (`CF_RIG=A|B`, plus `CF_STILL_ORBIT` for positioned stills). One `place_orbit()` drives stills and sequences so the camera path is identical by construction, not by convention.
+
+**Results**
+
+| | Rig A camera-relative | Rig B fixed + gradient world |
+|---|---:|---:|
+| Still deviation from orbit 0 | **2.8 %** | 34.1 % |
+| `seq_max_deviation` (24 frames) | **3.55 %** | 33.50 % |
+| `seq_flicker_index` | 0.00043 | 0.00093 |
+| luma first → last | 0.2470 → 0.2393 | 0.2770 → 0.1842 |
+| Last-frame gate | PASS | FAIL (p99 0.6724) |
+| Per-frame render | 2.10 s | 2.09 s |
+
+**Acceptance targets:** exposure ≤ ±5 % — **A passes at 3.55 %**; chip visible throughout — **both pass**; no unintended temporal artefacts — **both pass**; no cost increase without benefit — **neither costs more**, so cost does not decide.
+
+**CF-030 and CF-031 resolved.** CF-031 in particular was solved by both rigs with `metallic` untouched at 1.0, as instructed.
+
+**Why B failed — the useful finding.** Environment light adds a constant, not a proportional term. It made frame 1 brighter (0.2770 vs 0.2470), which looked like progress, while the key light still rotated away. Ambient raised the floor; it did not stop the fall. **Ambient cannot fix a directional problem.**
+
+**Why A still drifts 3.55 %** — not the lights. Rotating a light about the Z axis through the origin leaves its distance to the target invariant, so the key's contribution is exactly constant. The residual is the fixed world and the view-dependent floor reflection. Three and a half per cent is the cost of holding the world still.
+
+**QA rule replaced.** QA-8 previously read "SSIM within the motion bound". SSIM measures difference, and a shot can change smoothly while fading to black — which is exactly what CF-028 did. Replaced with two independent measures computed in the script: `seq_max_deviation` (departure from frame 1) and `seq_flicker_index` (mean absolute second difference of the luma series, normalised). `CF_INTENTIONAL_DRIFT=1` reclassifies drift as `INFO(intentional-drift)` so a scripted light move is distinguishable from an accident.
+
+**Adversarial findings**
+
+| ID | Finding | Status |
+|---|---|---|
+| G1 | Rig A makes the subject's lighting invariant with camera angle; a long turntable may read flat | **Open** — trade-off accepted for short hero shots |
+| G2 | Stills rendered at 32 samples, sequences at 8, so quality is not directly comparable across them; only lighting is | Noted |
+| G3 | The `gate=` field still reports the last frame on a sequence, which is not representative | **Open** — `seq_verdict` now carries the sequence answer, but the field name still misleads |
+| G4 | Rig B's gradient world costs nothing (2.09 vs 2.10 s/frame), so "no cost increase without benefit" is satisfied vacuously for the losing option | Noted |
+
+**Files:** `tools/blender_scene_proof.py`, `docs/benchmarks/SAMPLE_AND_TEMPORAL_QA.md` §9, `tasks/BACKLOG.md`.
+
+**Artifacts:** `rig_compare.png`, `chip_crops.png`, `motion_strip.png`, `regions_compare.png`, `cf030_A.mp4`, `cf030_B.mp4`.
+
+**Next:** creative approval of Rig A. Nothing else should be built until the look is accepted.

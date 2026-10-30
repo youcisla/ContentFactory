@@ -23,11 +23,13 @@ Preview override:
 Outputs to tools/blender-test/: proof.png and proof.txt
 """
 
+import math
 import os
 import time
 
 import bpy
 import mathutils
+from bpy_extras.object_utils import world_to_camera_view
 
 # ---------------------------------------------------------------- config ---
 RES_PCT = int(os.environ.get("CF_PREVIEW_RES", "540"))
@@ -35,6 +37,13 @@ SAMPLES = int(os.environ.get("CF_PREVIEW_SAMPLES", "16"))
 EXPOSURE = float(os.environ.get("CF_EXPOSURE", "0"))
 TAG = os.environ.get("CF_TAG", "proof")
 FRAMES = int(os.environ.get("CF_FRAMES", "1"))
+# Lighting candidate. A = camera-relative rig, B = fixed rig + gradient world.
+RIG = os.environ.get("CF_RIG", "A").upper()
+# Render a single still at a given orbit index without running the sequence.
+STILL_ORBIT = int(os.environ.get("CF_STILL_ORBIT", "0"))
+# A scripted light move is legitimate; an unnoticed one is not. Setting this
+# reclassifies drift from FAIL to INFO so the QA can tell the two apart.
+INTENTIONAL_DRIFT = os.environ.get("CF_INTENTIONAL_DRIFT", "0") == "1"
 
 OUT_DIR = os.path.join(
     os.path.dirname(os.path.dirname(os.path.abspath(__file__))),
@@ -209,19 +218,61 @@ def area_light(name, loc, size, power, target_ob, color=(1, 1, 1)):
 
 # Three-point setup at product-photography scale (decimetres, not metres).
 # Power scales with distance squared; these values are set for a 0.5 m stand-off.
-area_light("Key", (0.300, -0.320, 0.360), 0.120, 3.0, target, color=(1.00, 0.97, 0.93))
-area_light("Fill", (-0.320, -0.210, 0.180), 0.200, 0.5, target, color=(0.86, 0.91, 1.00))
-# Rim moved back and up, power cut: at its previous position its floor specular
-# was a large blown white blot in the lower right of the frame.
-area_light("Rim", (-0.140, 0.420, 0.400), 0.070, 3.4, target, color=(0.80, 0.92, 1.00))
+# Rim sits back and high; at a closer position its floor specular was a large
+# blown white blot in the lower right of the frame.
+_LIGHTS = [
+    ("Key", (0.300, -0.320, 0.360), 0.120, 3.0, (1.00, 0.97, 0.93)),
+    ("Fill", (-0.320, -0.210, 0.180), 0.200, 0.5, (0.86, 0.91, 1.00)),
+    ("Rim", (-0.140, 0.420, 0.400), 0.070, 3.4, (0.80, 0.92, 1.00)),
+]
+_lights = [area_light(n, loc, s, p, target, color=c) for n, loc, s, p, c in _LIGHTS]
 
-# Very low ambient so the floor does not go flat, but the rim still separates.
-world = bpy.data.worlds.new("StudioWorld")
-world.use_nodes = True
-bg = world.node_tree.nodes["Background"]
-bg.inputs[0].default_value = (0.004, 0.005, 0.009, 1.0)
-bg.inputs[1].default_value = 0.20
-scene.world = world
+# Rig A carries the lights around with the camera so the key never leaves the
+# subject. Rig B leaves them world-fixed.
+rig_root = None
+if RIG == "A":
+    rig_root = bpy.data.objects.new("LightRig", None)
+    scene.collection.objects.link(rig_root)
+    rig_root.location = (0.0, 0.0, 0.0)
+    for _lt in _lights:
+        _lt.parent = rig_root
+        _lt.matrix_parent_inverse = rig_root.matrix_world.inverted()
+
+
+def build_world(mode):
+    """B gets a vertical gradient environment.
+
+    Two jobs at once: it gives the metallic chip something to reflect (a pure
+    metal has no diffuse term and renders black against an empty world), and it
+    supplies view-independent fill, which is what stops the camera orbit from
+    losing exposure as it turns away from the key.
+    """
+    w = bpy.data.worlds.new("StudioWorld")
+    w.use_nodes = True
+    nt = w.node_tree
+    bg = nt.nodes["Background"]
+    if mode == "B":
+        coord = nt.nodes.new("ShaderNodeTexCoord")
+        sep = nt.nodes.new("ShaderNodeSeparateXYZ")
+        ramp = nt.nodes.new("ShaderNodeValToRGB")
+        coord.location = (-900, 0)
+        sep.location = (-700, 0)
+        ramp.location = (-500, 0)
+        nt.links.new(coord.outputs["Generated"], sep.inputs["Vector"])
+        nt.links.new(sep.outputs["Z"], ramp.inputs["Fac"])
+        ramp.color_ramp.elements[0].position = 0.30
+        ramp.color_ramp.elements[0].color = (0.012, 0.014, 0.020, 1.0)
+        ramp.color_ramp.elements[1].position = 0.90
+        ramp.color_ramp.elements[1].color = (0.230, 0.245, 0.270, 1.0)
+        nt.links.new(ramp.outputs["Color"], bg.inputs["Color"])
+        bg.inputs["Strength"].default_value = 1.0
+    else:
+        bg.inputs[0].default_value = (0.004, 0.005, 0.009, 1.0)
+        bg.inputs[1].default_value = 0.20
+    return w
+
+
+scene.world = build_world(RIG)
 
 
 # -------------------------------------------------------- render settings ---
@@ -274,22 +325,38 @@ print("RESOLUTION", scene.render.resolution_x, scene.render.resolution_y, RES_PC
 print("SAMPLES", getattr(scene.eevee, "taa_render_samples", "?"))
 print("VIEW_TRANSFORM", scene.view_settings.view_transform, "EXPOSURE", EXPOSURE)
 
+ORBIT_STEP_DEG = 1.5
+ORBIT_R = (cam.location.x ** 2 + cam.location.y ** 2) ** 0.5
+ORBIT_A0 = math.atan2(cam.location.y, cam.location.x)
+CAM_Z = cam.location.z
+
+
+def place_orbit(index, keyframe_frame=None):
+    """Put the camera, and for rig A the light rig, at orbit position `index`.
+
+    One function drives stills and sequences so both are rendered from exactly
+    the same positions — the comparison is otherwise not controlled.
+    """
+    a = ORBIT_A0 + index * math.radians(ORBIT_STEP_DEG)
+    cam.location = (ORBIT_R * math.cos(a), ORBIT_R * math.sin(a), CAM_Z)
+    if rig_root is not None:
+        rig_root.rotation_euler = (0.0, 0.0, index * math.radians(ORBIT_STEP_DEG))
+    if keyframe_frame is not None:
+        cam.keyframe_insert("location", frame=keyframe_frame)
+        if rig_root is not None:
+            rig_root.keyframe_insert("rotation_euler", frame=keyframe_frame)
+
+
 def orbit_camera(frames):
     """Keyframe a small arc so consecutive frames differ.
 
     Without differing frames Eevee can reuse its internal result cache and the
     second timing would be meaningless.
     """
-    import math
-
     scene.frame_start = 1
     scene.frame_end = frames
-    r = (cam.location.x ** 2 + cam.location.y ** 2) ** 0.5
-    a0 = math.atan2(cam.location.y, cam.location.x)
     for f in range(1, frames + 1):
-        a = a0 + (f - 1) * math.radians(1.5)
-        cam.location = (r * math.cos(a), r * math.sin(a), cam.location.z)
-        cam.keyframe_insert("location", frame=f)
+        place_orbit(f - 1, keyframe_frame=f)
 
 
 def probe_gpu():
@@ -331,6 +398,9 @@ if FRAMES > 1:
     elapsed = frame_times[0]
     last_png = os.path.join(OUT_DIR, f"{TAG}_f{FRAMES:04d}.png")
 else:
+    if STILL_ORBIT:
+        place_orbit(STILL_ORBIT)
+        bpy.context.view_layer.update()
     start = time.perf_counter()
     bpy.ops.render.render(write_still=True)
     elapsed = time.perf_counter() - start
@@ -390,7 +460,66 @@ else:
     setup = 0.0
 est_240 = setup + 240 * per_frame
 
+# --- chip screen position, so crops are reproducible rather than guessed ------
+bpy.context.view_layer.update()
+try:
+    _ndc = world_to_camera_view(scene, cam, chip.matrix_world.translation)
+    _sx = scene.render.resolution_x * RES_PCT / 100.0
+    _sy = scene.render.resolution_y * RES_PCT / 100.0
+    chip_str = f"{_ndc.x * _sx:.0f},{(1.0 - _ndc.y) * _sy:.0f}"
+except Exception as exc:
+    chip_str = f"unavailable({exc})"
+
+# --- sequence QA ------------------------------------------------------------
+# SSIM alone is not sufficient: two frames can be visually similar while the
+# whole shot slowly loses exposure. These two measures separate the cases.
+#   max_deviation  - largest departure from the first frame, as a fraction
+#   flicker_index  - mean |second difference| of the luma series, normalised.
+#                    A smooth ramp has near-zero curvature; flicker does not.
+DRIFT_MAX = 0.05
+FLICKER_MAX = 0.01
+
+seq = {}
+seq_verdict = "n/a"
+if FRAMES > 1:
+    lums = []
+    for f in range(1, FRAMES + 1):
+        p = os.path.join(OUT_DIR, f"{TAG}_f{f:04d}.png")
+        if os.path.exists(p):
+            lums.append(measure(p)["mean"])
+    if len(lums) >= 3:
+        base = lums[0]
+        mean_l = sum(lums) / len(lums)
+        d2 = [lums[i] - 2 * lums[i - 1] + lums[i - 2] for i in range(2, len(lums))]
+        seq = {
+            "max_deviation": max(abs(v - base) / base for v in lums),
+            "drift": (lums[-1] - base) / base,
+            "flicker_index": (sum(abs(v) for v in d2) / len(d2)) / mean_l,
+            "luma_first": lums[0],
+            "luma_last": lums[-1],
+            "luma_min": min(lums),
+            "luma_max": max(lums),
+        }
+        problems = []
+        if seq["max_deviation"] > DRIFT_MAX:
+            tag = "INFO(intentional-drift)" if INTENTIONAL_DRIFT else "FAIL"
+            problems.append(
+                f"{tag} exposure deviation {seq['max_deviation'] * 100:.1f}% > {DRIFT_MAX * 100:.0f}%"
+            )
+        if seq["flicker_index"] > FLICKER_MAX:
+            problems.append(
+                f"FAIL flicker index {seq['flicker_index']:.5f} > {FLICKER_MAX}"
+            )
+        seq_verdict = "PASS" if not problems else " | ".join(problems)
+
+
+def _f(key, fmt="{:.4f}", default=0.0):
+    return fmt.format(seq.get(key, default))
+
+
 report = [
+    f"rig={RIG}",
+    f"chip_screen_px={chip_str}",
     f"version={bpy.app.version_string}",
     f"engine={scene.render.engine}",
     f"resolution={scene.render.resolution_x}x{scene.render.resolution_y}@{RES_PCT}%",
@@ -407,6 +536,14 @@ report = [
     f"p99_luminance={stats['p99']:.4f}",
     f"dark_fraction={stats['dark_fraction']:.4f}",
     f"gate={verdict}",
+    f"seq_max_deviation={_f('max_deviation', '{:.4f}', -1.0)}",
+    f"seq_drift={_f('drift', '{:+.4f}')}",
+    f"seq_flicker_index={_f('flicker_index', '{:.5f}', -1.0)}",
+    f"seq_luma_first={_f('luma_first')}",
+    f"seq_luma_last={_f('luma_last')}",
+    f"seq_luma_min={_f('luma_min')}",
+    f"seq_luma_max={_f('luma_max')}",
+    f"seq_verdict={seq_verdict}",
 ]
 
 with open(OUT_TXT, "w", encoding="utf-8") as fh:

@@ -233,3 +233,76 @@ Two fixes, both cheap: give the scene a low-intensity environment texture so met
 | Gate on sequences | assumed per-frame | **fails correctly on exposure drift; needs sequence semantics** |
 | Metals | assumed correct | **fail in vacuum — no environment to reflect** |
 | Lighting rig | static three-point | **must become camera-relative for any orbit** |
+
+---
+
+## 9. CF-030 / CF-031 — lighting candidates compared
+
+Both candidates rendered from the identical camera path, resolution, sample count, colour management and output settings, driven by one script and one `place_orbit()` function. `CF_RIG=A|B` is the only difference.
+
+| | Rig A — camera-relative | Rig B — fixed + gradient world |
+|---|---|---|
+| Lights | Three area lights parented to an empty rotated 1.5°/frame with the camera | Three area lights world-fixed |
+| Environment | Near-black constant world, strength 0.20 | Procedural vertical gradient, strength 1.00 |
+| `metallic` changed | **no** | **no** |
+
+### Stills at 32 samples, three orbit positions
+
+| Orbit | A mean | A p99 | A gate | B mean | B p99 | B gate |
+|---:|---:|---:|---|---:|---:|---|
+| 0 | 0.2468 | 0.7107 | PASS | 0.2768 | 0.7135 | PASS |
+| 12 | 0.2402 | 0.7135 | PASS | 0.2145 | 0.6732 | FAIL |
+| 24 | 0.2398 | 0.7135 | PASS | 0.1825 | 0.6724 | FAIL |
+| **deviation from orbit 0** | **2.8 %** | | | **34.1 %** | | |
+
+### 24-frame sequences at 540×960, 8 samples
+
+| Metric | Rig A | Rig B | Target |
+|---|---:|---:|---|
+| `seq_max_deviation` | **3.55 %** | **33.50 %** | ≤ 5 % |
+| `seq_drift` (first → last) | −3.13 % | −33.50 % | — |
+| `seq_flicker_index` | **0.00043** | 0.00093 | ≤ 0.01 |
+| luma first → last | 0.2470 → 0.2393 | 0.2770 → 0.1842 | — |
+| last-frame gate | PASS | FAIL (p99 0.6724) | — |
+| Per-frame render | 2.10 s | 2.09 s | no cost increase |
+| 240 frames | 8.4 min | 8.4 min | — |
+
+### Verdict
+
+**Rig A passes. Rig B fails.**
+
+- **Exposure:** A holds within 3.55 %, inside the ±5 % target. B loses a third of its light, matching the CF-028 defect it was meant to fix.
+- **Flicker:** both are clean (0.00043 / 0.00093). Neither drifts because of temporal noise — B's problem is directional, not stochastic.
+- **Chip:** legible and metallic at all six stills and across both sequences. **CF-031 is solved by both rigs, without touching `metallic`.**
+- **Cost:** 2.10 s vs 2.09 s per frame. No penalty either way, so cost does not decide it.
+
+### Why B failed
+
+An environment adds a constant-ish term, not a proportional one. At orbit 0 it made the frame *brighter* (0.2770 vs A's 0.2470), which looked like progress, but the fixed key light still rotated away from the subject. Environment light compensated ~12 % and the key lost ~33 %.
+
+The lesson is general: **ambient light cannot fix a directional problem.** It raises the floor; it does not stop the fall.
+
+### Why A still drifts 3.55 %
+
+The residual is *not* from the lights. Rotating a light about the Z axis through the origin leaves its distance to the target invariant (`x² + y²` unchanged, target at `x = y = 0`), so the key's contribution is exactly constant.
+
+The residual comes from what does not rotate: the near-black world is fixed, and the floor's reflection is view-dependent. As the camera turns, a slightly different slice of floor and background enters the frame. Three and a half per cent is the cost of holding the world still.
+
+### Artifacts
+
+| File | Content |
+|---|---|
+| `rig_compare.png` | 6 panels — 2 rigs × 3 orbit positions |
+| `chip_crops.png` | 6 chip crops at 2× — the CF-031 evidence |
+| `motion_strip.png` | frames 1, 8, 16, 24 of both sequences side by side |
+| `regions_compare.png` | card and terminal crops at orbit 24 |
+| `cf030_A.mp4`, `cf030_B.mp4` | the two 1 s sequences |
+
+### QA rule added
+
+`SAMPLE_AND_TEMPORAL_QA.md` §4 QA-8 said "temporal continuity — SSIM within the motion bound". That was insufficient: SSIM measures difference, and a shot can change smoothly while still fading to black. Replaced by two independent measures computed in the scene script:
+
+- **`seq_max_deviation`** — largest departure from frame 1, as a fraction of frame 1's luma. Catches drift in any direction.
+- **`seq_flicker_index`** — mean absolute second difference of the luma series, normalised. A smooth ramp has near-zero curvature; flicker does not. This is what separates "the shot dimmed" from "the shot strobed".
+
+Setting `CF_INTENTIONAL_DRIFT=1` reclassifies a drift failure as `INFO(intentional-drift)` rather than `FAIL`, so a scripted light move is distinguishable from an accidental one. Without the flag, drift beyond 5 % fails.

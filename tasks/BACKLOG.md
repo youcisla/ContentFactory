@@ -35,8 +35,9 @@ Status values: `blocked` · `ready` · `in progress` · `done` · `dropped`.
 | CF-021 | V4 one-scene benchmark — 10 s @ 24 fps | **in progress** | CF-025 | Scene renders and passes an objective exposure gate; the 10 s sequence does not yet exist. See `docs/benchmarks/BLENDER_EEVEE_CORRECTION.md` |
 | CF-025 | Corrected Eevee scene + objective exposure gate + GPU backend probe | done | — | `tools/blender_scene_proof.py`; gate PASS on `proof_final.png`; GPU = Intel OpenGL 4.6 |
 | CF-028 | Smallest useful local animation benchmark — 24 frames, 540×960, 8 samples, encode to MP4 | done | — | `cf028.mp4` 540×960, 24 frames, 1.0 s, h264. 74.6 s total, median 2.42 s/frame. Adjacent SSIM 0.959–0.972, no flicker. Found F1 exposure drift 32 % and F2 metals render black. §8 of `SAMPLE_AND_TEMPORAL_QA.md` |
-| CF-030 | Camera-relative light rig (turntable) to remove the 32 % exposure drift | **ready** | — | A 24-frame orbit holds luma within ±5 % of frame 1 |
-| CF-031 | Environment reflection source so metallic materials are not black | **ready** | — | Gold chip reads as metal at every camera angle in the orbit |
+| CF-030 | Camera-relative light rig (turntable) to remove the 32 % exposure drift | done | — | Rig A: `seq_max_deviation` **3.55 %** (target ≤5 %), flicker index 0.00043. Rig B (fixed + gradient world) failed at 33.50 %. §9 of `SAMPLE_AND_TEMPORAL_QA.md` |
+| CF-031 | Environment reflection source so metallic materials are not black | done | — | Gold chip reads as metal at all 6 stills and both sequences, `metallic` unchanged at 1.0. Both rigs satisfy it |
+| CF-032 | Sequence QA in the scene script — drift and flicker indices replacing SSIM-only continuity | done | — | `seq_max_deviation` and `seq_flicker_index` in every multi-frame run; `CF_INTENTIONAL_DRIFT` separates scripted light moves from accidents |
 | CF-029 | Visual QA automation — QA-4, QA-5, QA-10 from `SAMPLE_AND_TEMPORAL_QA.md` §4 | blocked | CF-028 | Framing, object-visibility and text-size checks run in CI on every render |
 | CF-022 | Automation only after V4 | **blocked** | CF-021 | Visual acceptance precedes batch work |
 | CF-023 | Remote Eevee test — one frame on RunPod Community 4090 ($0.34/h) or Vast 4090 ($0.41/h) | **blocked** | user approval + spend (~$0.05) | Wall clock recorded; cost per 10 s scene computed |
