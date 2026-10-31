@@ -6,9 +6,9 @@ Global parameters shared by all templates: `fps` 24 · `resolution` 1080×1920 o
 
 | # | Template | Parameters | Status |
 |---|---|---|---|
-| 1 | Product macro closeup | `subject`, `lens` 85, `fstop` 5.6–11, `focus_target`, `push_mm` | **Built (set only)** — template wide-camera frame verified; no hero prop yet |
-| 2 | Object interaction | `actor`, `prop`, `contact_point`, `duration`, `lens` 50 | Spec — needs a rigged hand (CF-149) |
-| 3 | Technical cutaway | `assembly`, `cut_plane`, `explode_distance`, `lens` 50 | Spec |
+| 1 | Product macro closeup | `subject`, `lens` 85, `fstop` 5.6–11, `focus_target`, `push_mm` | **Built** — `shots/t01_product_macro.json`, rendered 1080×1920/32 spp in 13.94 s, exposure gate PASS |
+| 2 | Object interaction | `actor`, `prop`, `contact_point`, `duration`, `lens` 50 | **Built (prop, no hand)** — `shots/t02_object_interaction.json`, card entering the slot, 13.09 s, gate PASS. A hand remains blocked on CF-149 |
+| 3 | Technical cutaway | `assembly`, `cut_plane`, `explode_distance`, `lens` 50 | **Built as mechanism reveal** — `shots/t03_cutaway.json`, hovering card over the reader, 13.51 s, gate PASS. Exploded-part variant needs append mode |
 | 4 | Camera tracking reveal | `path`, `ease`, `duration`, `lens` 35 | Spec — V4 dolly is the working precedent |
 | 5 | Network / data-flow | `nodes`, `edges`, `packet_path`, `depth_fog` | Spec — 2D version exists as SVG in `render/scenes/` |
 | 6 | Exploded mechanism | `parts`, `axis`, `spacing`, `stagger_ms` | Spec |
@@ -17,9 +17,17 @@ Global parameters shared by all templates: `fps` 24 · `resolution` 1080×1920 o
 | 9 | Environmental establishing | `set`, `lens` 24–35, `crane_height` | Spec |
 | 10 | Educational summary reveal | `lines`, `reveal_order`, `hold_ms` | Spec — 2D version shipped in the animatic |
 
-## Why only one is built
+## Why only three are built
 
-A shot template is a promise that a shot can be produced quickly and repeatably. Producing ten empty shells would satisfy a count and prove nothing. One is verified end to end; nine have their parameters defined so that building them is a bounded task, not a design exercise.
+A shot template is a promise that a shot can be produced quickly and repeatably. Producing ten empty shells would satisfy a count and prove nothing. Three are verified end to end from JSON against the linked terminal asset; seven have their parameters defined so that building them is a bounded task, not a design exercise.
+
+## Running a template
+
+```
+blender.exe -b -P tools/shot_render.py -- shots/t01_product_macro.json
+```
+
+The spec is the only input; the renderer links `assets/models/terminal_master.blend`, applies the spec and writes a sidecar with the cache key, template hash and seconds. An unchanged spec returns from `render/cache/` in about 0.9 s.
 
 ## Template contract
 
@@ -39,6 +47,6 @@ Green appears only on the terminal and the returning packet. Never on the card. 
 
 | Template | Blocked by |
 |---|---|
-| 2, 8 | A rigged character/hand under a usable licence (CF-149) |
-| 3, 6 | Hero prop geometry — the terminal is not modelled yet |
+| 2 (hand version), 8 | A rigged character/hand under a usable licence (CF-149) |
+| 6 | Exploded-part shots need append mode or library overrides (linked collection is atomic) |
 | 5 | Decision: keep the existing SVG diagram path or move it into 3D |

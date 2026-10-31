@@ -68,6 +68,7 @@ That the spine can iterate on this machine. It does **not** prove final visual q
 | B0 | — | not run | awaiting approval |
 | B1 | — | not run | — |
 | B2 | — | not run | — |
+| V5 still | 2026-10-31 | asset terminal visibly better than the V4 primitive baseline | [`V5_STILL_BENCHMARK_2026-10-31.md`](V5_STILL_BENCHMARK_2026-10-31.md) — 15.89 s vs 27.58 s at 1080×1920/32 spp; candidate passes the exposure gate, baseline fails it |
 | B3 | — | not run | — |
 | CF-145 probe | 2026-10-31 | DOF and motion blur render headless; +45 % at f/2.8 + 180° shutter; macro DOF needs f/16 | [`LENS_PROBE_2026-10-31.md`](LENS_PROBE_2026-10-31.md) |
 

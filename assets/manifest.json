@@ -1,6 +1,6 @@
 {
   "generated_at": "2026-10-31",
-  "total_bytes": 23093249,
+  "total_bytes": 23297633,
   "assets": [
     {
       "path": "assets/hdri/brown_photostudio_02_2k.hdr",
@@ -201,8 +201,31 @@
       "reuse": "high",
       "local_path": "assets/textures/plastic013a/Plastic013A_1K-JPG_Roughness.jpg",
       "preview": null
+    },
+    {
+      "path": "assets/models/receipt-point-of-sale-terminal.glb",
+      "source_url": "https://www.innerscene.com/tools/library/3d-parts/counter-pay-payment-terminal-74006716",
+      "author": "Innerscene",
+      "licence": "CC0",
+      "retrieved_at": "2026-10-31",
+      "retrieved_from": "https://www.innerscene.com/api/library/counter-pay-payment-terminal-74006716/download",
+      "commercial_ok": true,
+      "attribution_required": false,
+      "bytes": 204384,
+      "sha256": "fd49c9304bc1a9e617203c64b7188608faabbc0855902e5b135311b2f9aa93b6",
+      "id": "receipt-pos-terminal-cc0",
+      "category": "model",
+      "format": "glb",
+      "style": "realistic-product",
+      "blender_compatible": true,
+      "dependencies": [],
+      "polygons": 5000,
+      "dimensions_m": "0.100 x 0.222 x 0.101",
+      "reuse": "high",
+      "local_path": "assets/models/receipt-point-of-sale-terminal.glb",
+      "preview": null
     }
   ],
   "catalog_version": 2,
-  "notes": "Catalog rows are the manifest. blender_compatible=True was proven by tools/build_template.py loading the HDRI and both PBR sets on 2026-10-31."
+  "notes": "Catalog rows are the manifest. blender_compatible=True was proven by tools/build_template.py loading the HDRI and both PBR sets on 2026-10-31, and by tools/inspect_model.py importing the terminal GLB on the same date."
 }

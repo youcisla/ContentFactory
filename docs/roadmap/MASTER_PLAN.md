@@ -40,7 +40,7 @@ Produce original educational videos (Money · Technology · Digital Safety) in 9
 | Blender capability on this host | **Measured** — 5.2.3 installed; Eevee renders headlessly on Intel OpenGL 4.6; GPU backend confirmed, not a software fallback (`docs/benchmarks/BLENDER_EEVEE_CORRECTION.md`) |
 | V4 one-scene gate | **Open** — install and capability are settled; scene quality and render budget are not. Automation deliberately deferred |
 | Production pipeline | Not started — blocked on V4 |
-| Premium 3D reset | **Foundation built, benchmark not.** CC0 asset catalog (10 files, 23.1 MB, sha256 + validator), `templates/cf_studio_v1.blend` verified headless, shot library and six-minute spec written. Scorecard **58/100**. Still missing: hero props, a human, audio, cache. CF-143 (isolated agent-tool trial) remains unapproved |
+| Premium 3D reset | **Asset-first milestone landed.** CC0 terminal imported, adapted and linked into the template (5,100 tris, 4 finishes); three JSON-driven shot templates render headless; content-addressed cache (0.90 s hit vs 15.89 s render); before/after stills confirm a visible improvement (`docs/benchmarks/V5_STILL_BENCHMARK_2026-10-31.md`). Scorecard **68/100**. Still missing: a human, audio, a sequence cut from the templates, 7 of 10 templates, compositor. CF-143 remains unapproved |
 | Current phase | **V4 — one excellent scene**; R2 (B0 vector benchmark) remains blocked on G6 and is independent |
 
 ## 5. Phases

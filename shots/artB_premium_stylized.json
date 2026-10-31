@@ -1,0 +1,43 @@
+{
+  "output": "render/stills/artB_premium_stylized.png",
+  "resolution": [
+    1080,
+    1920
+  ],
+  "samples": 32,
+  "camera": "CAM_Wide_35",
+  "camera_location": [
+    0.36,
+    -0.52,
+    0.34
+  ],
+  "lens": 50,
+  "f_stop": 8.0,
+  "exposure": -0.6,
+  "marker": [
+    0,
+    0,
+    0.05
+  ],
+  "terminal": {
+    "mode": "link",
+    "location": [
+      0,
+      0,
+      0
+    ],
+    "rotation_z_deg": -22
+  },
+  "light": "premium_stylized",
+  "world_strength": 0.05,
+  "screen": {
+    "amount": "12.40",
+    "status": "APPROVED",
+    "color": [
+      0.2,
+      0.95,
+      1.0
+    ],
+    "strength": 8.0
+  }
+}

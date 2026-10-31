@@ -3,7 +3,7 @@
 Atomic work only. Phase intent lives in [`docs/roadmap/MASTER_PLAN.md`](../docs/roadmap/MASTER_PLAN.md); this file does not restate it.
 Status values: `blocked` · `ready` · `in progress` · `done` · `dropped`.
 
-**Current reality (2026-10-30):** G0 is approved. Phase 1 spike tasks CF-010–CF-020 are complete. Blender 5.2.3 is installed and Eevee is measured. The only open work is V4 (one excellent scene), the vector spine (CF-015, blocked on G6), and everything downstream of V4.
+**Current reality (2026-10-31):** G0 is approved. Blender 5.2.3 is installed and Eevee is measured. The asset-first milestone landed one CC0 terminal, three JSON-driven shot templates, a cached render path and a before/after still benchmark. V4 remains the only sequence; its visual acceptance is still withheld. The vector spine (CF-015, blocked on G6) and everything downstream of V4 are unchanged.
 
 **ID rule:** an ID is never reused. Bands: **0xx** spine, **1xx** visual/3D, **2xx** audio, **3xx** publishing. CF-020/CF-021 duplicates became CF-025/CF-026. CF-028–CF-036 duplicated the Phase 3 spine IDs and are now CF-128–CF-136. Full mapping: `docs/reviews/CLEANUP_AND_ID_RECONCILIATION.md` §5.
 
@@ -49,14 +49,14 @@ Status values: `blocked` · `ready` · `in progress` · `done` · `dropped`.
 | CF-140 | Asset acquisition — small curated CC0 set (one HDRI, one PBR set) with recorded provenance | done | — | `assets/manifest.json`: 10 files, **23.1 MB**, sha256 per file. `brown_photostudio_02` 2K HDR (CC0, Poly Haven); `metal_plate` 2K diffuse/rough/normal/metal (CC0, Poly Haven); `Plastic013A` 1K JPG (CC0, ambientCG). No account, no attribution owed, no collection download |
 | CF-141 | Asset manifest + validator | done | — | `tools/check_assets.py` — PASS on the real manifest (`assets=10 total_mb=23.1`); negative control with `commercial_ok=false` exits 1 with two FAIL lines. Also checks sha256, file existence, https source and the 100 MB cap |
 | CF-142 | `.blend` scene template — camera rig, light rig, set, linked asset collections | done | CF-140, CF-141 | `tools/build_template.py` → `templates/cf_studio_v1.blend`. Collections `CAMERAS`/`LIGHTS`/`SET`/`PROPS`/`RIGS`; two cameras (85 mm f/8 macro, 35 mm f/5.6 wide) tracking a `SubjectMarker`; HDRI world at 0.3; PBR counter/backdrop/trim; 3.0 m backdrop for usable DOF; AgX MHC; 180° shutter. Verified headless: opens, prints metadata, renders a frame in **5.33 s** at 540×960/16 spp with `mean 0.212, p95 0.526`. Light powers measured by a scale sweep, not guessed |
-| CF-148 | Shot template library build-out — 5 of 10 from `docs/production/SHOT_LIBRARY.md` | blocked | CF-150 | Five templates render headless from parameters only; each passes the geometry gate |
+| CF-148 | Shot template library build-out — 5 of 10 from `docs/production/SHOT_LIBRARY.md` | in progress | CF-150 | Three data-driven templates render from JSON (`shots/t01`, `t02`, `t03`), each with a recorded time and exposure-gate result. Two more required |
 | CF-149 | Rigged hand / character acquisition | **blocked** | user approval + CC BY credit plan | One model enters `assets/` with a licence row and a generated credit line; brand marks inspected |
-| CF-150 | Terminal hero prop modelled to reference | ready | — | Modelled in-house, no brand marks, passes geometry gate; est. 4–6 h |
-| CF-151 | Content-addressed render cache | ready | — | Re-running an unchanged shot returns cached frames; hit rate reported |
+| CF-150 | Terminal hero prop — **definition changed 2026-10-31 to acquire/adapt, not model** | done | — | CC0 Innerscene terminal, 204,384 B, 5,100 tris, sha256 `fd49c930…`; master `assets/models/terminal_master.blend`; four materials adapted; evidence `docs/reviews/ASSET_EVALUATION_2026-10-31.md` |
+| CF-151 | Content-addressed render cache | done | — | `tools/shot_render.py` keys sha256(spec − output + template + master + renderer + Blender version); measured hit 0.90 s vs 15.89 s render |
 | CF-152 | Six-minute script and shot list bound to claims | ready | — | Every line traces to a VERIFIED claim; every shot assigned a class from `SIX_MINUTE_SPEC.md` §2 |
-| CF-153 | Cold/warm production measurement harness | blocked | CF-151 | Cold and warm timings measured and recorded separately; no invented numbers |
-| CF-154 | Art-direction A/B — cinematic realistic vs premium stylized | blocked | CF-150 | Two stills from the same subject, blind comparison, decision recorded |
-| CF-155 | Template v2 — compositor, shot-parameter JSON, template hash in render job | blocked | CF-150 | Opens headless; renders 3 shot variants from JSON; hash recorded |
+| CF-153 | Cold/warm production measurement harness | ready | CF-151 | Cold and warm timings measured and recorded separately; no invented numbers. Cache exists; production run does not |
+| CF-154 | Art-direction A/B — cinematic realistic vs premium stylized | done | CF-150 | `artA` and `artB` stills from the same asset; A selected for production, B retained as variant; `docs/benchmarks/V5_STILL_BENCHMARK_2026-10-31.md` |
+| CF-155 | Template v2 — compositor, shot-parameter JSON, template hash in render job | in progress | CF-150 | JSON spec, template hash and three variants exist; compositor absent |
 | CF-143 | Isolated trial of `ifBars/blender-agent-studio` (authoring only) | **blocked** | user approval + isolated VM/container, no network, no credentials | Builds and saves one `.blend` with a camera and a light; no render-path use; result recorded with its licence and telemetry status |
 | CF-144 | V5 premium benchmark — 8–12 s, asset-driven, 1080×1920, multi-shot | blocked | CF-140, CF-142 | Shot spec in JSON; beats V4 in blind side-by-side review; render ≤ 15 min; every asset has a licence row |
 | CF-145 | Camera-language pass — DOF, 180° shutter motion blur, 35/50/85 mm shot discipline | ready | — | Still A/B shows focus falloff and blur; no geometry-gate or exposure-gate regression |

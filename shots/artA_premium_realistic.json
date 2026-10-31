@@ -1,0 +1,43 @@
+{
+  "output": "render/stills/artA_premium_realistic.png",
+  "resolution": [
+    1080,
+    1920
+  ],
+  "samples": 32,
+  "camera": "CAM_Macro_85",
+  "camera_location": [
+    0.03,
+    -0.6,
+    0.3
+  ],
+  "lens": 85,
+  "f_stop": 4.0,
+  "exposure": -0.3,
+  "marker": [
+    0,
+    0,
+    0.045
+  ],
+  "terminal": {
+    "mode": "link",
+    "location": [
+      0,
+      0,
+      0
+    ],
+    "rotation_z_deg": 28
+  },
+  "light": "premium_realistic",
+  "world_strength": 0.25,
+  "screen": {
+    "amount": "12.40",
+    "status": "APPROVED",
+    "color": [
+      0.55,
+      1.0,
+      0.7
+    ],
+    "strength": 4.0
+  }
+}

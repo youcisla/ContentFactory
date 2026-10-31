@@ -1,0 +1,47 @@
+{
+  "output": "render/stills/t02_object_interaction.png",
+  "resolution": [
+    1080,
+    1920
+  ],
+  "samples": 32,
+  "camera": "CAM_Wide_35",
+  "camera_location": [
+    0.18,
+    -0.55,
+    0.3
+  ],
+  "lens": 50,
+  "f_stop": 8.0,
+  "exposure": -0.3,
+  "marker": [
+    0,
+    -0.05,
+    0.03
+  ],
+  "terminal": {
+    "mode": "link",
+    "location": [
+      0,
+      0,
+      0
+    ],
+    "rotation_z_deg": 28
+  },
+  "light": "premium_realistic",
+  "world_strength": 0.5,
+  "screen": {
+    "amount": "12.40",
+    "status": "INSERT CARD",
+    "color": [
+      0.55,
+      1.0,
+      0.7
+    ],
+    "strength": 4.0
+  },
+  "card": {
+    "enabled": true,
+    "insert": 0.2
+  }
+}

@@ -2,7 +2,7 @@
 
 Documentation-first repository for an automated educational video pipeline (Money · Technology · Digital Safety), producing 9:16 Shorts and 16:9 long-form.
 
-**Phase: V4 plus a first animatic, with a premium 3D reset in preparation.** Blender 5.2.3 and Eevee are measured on this host; a 40 s animatic exists (CF-137), built from a 10 s rendered 3D scene and SVG diagrams. No production pipeline code yet, and there is no audio. The reset (tooling evaluation, licence-verified asset strategy, ADR-0007, V5 treatment) is researched and specified but **not built**: it needs two named approvals first. See `docs/roadmap/MASTER_PLAN.md` for gates.
+**Phase: V4 plus a first animatic, with an asset-driven 3D reset under way.** Blender 5.2.3 and Eevee are measured on this host; a 40 s animatic exists (CF-137), built from a 10 s rendered 3D scene and SVG diagrams. No production pipeline code yet, and there is no audio. The reset now has a working asset path: one CC0 terminal imported and linked into the template, three JSON-driven shot templates, and a content-addressed render cache. See `docs/roadmap/MASTER_PLAN.md` for gates.
 
 ---
 
@@ -19,7 +19,7 @@ Documentation-first repository for an automated educational video pipeline (Mone
 | Prototypes | R1 static SVG, R2 CSS animation, cinematic WebGL — all built | [`prototypes/`](prototypes/) |
 | Benchmark B0 (vector render) | **Not run — awaiting approval** | [`docs/benchmarks/README.md`](docs/benchmarks/README.md) |
 | Production pipeline | Not started — blocked on V4 | [`tasks/BACKLOG.md`](tasks/BACKLOG.md) |
-| Premium 3D reset — foundation | **Assets and template built; no benchmark.** Ten Blender candidates evaluated; CC0 catalog (10 files, 23.1 MB) validated; `templates/cf_studio_v1.blend` renders headless; shot library and six-minute spec written; scorecard 58/100. Blocked on hero props, a licensed hand, audio and a cache | [`EVALUATION_2026-10-31.md`](docs/research/open-source-projects/EVALUATION_2026-10-31.md), [`ASSET_STRATEGY_2026-10-31.md`](docs/research/assets/ASSET_STRATEGY_2026-10-31.md), [`ADR-0007`](docs/architecture/decisions/ADR-0007-asset-driven-scene-pipeline.md), [`PREMIUM_TREATMENT_V5.md`](docs/creative/PREMIUM_TREATMENT_V5.md) |
+| Premium 3D reset — asset-first milestone | **Asset terminal imported and linked; three templates; no sequence yet.** CC0 terminal (5,100 tris, 4 finishes, sha256-verified) in `assets/models/`; `shots/t01–t03` render from JSON at 13–16 s/still; cache hit 0.90 s; before/after stills show a visible gain; scorecard 68/100. Blocked on a licensed hand, audio, a sequence cut and 7 more templates | [`ASSET_EVALUATION_2026-10-31.md`](docs/reviews/ASSET_EVALUATION_2026-10-31.md), [`ASSET_INTEGRATION_2026-10-31.md`](docs/production/ASSET_INTEGRATION_2026-10-31.md), [`V5_STILL_BENCHMARK_2026-10-31.md`](docs/benchmarks/V5_STILL_BENCHMARK_2026-10-31.md), [`ADR-0007`](docs/architecture/decisions/ADR-0007-asset-driven-scene-pipeline.md) |
 
 ## Current recommendation
 

@@ -1,0 +1,55 @@
+{
+  "output": "render/stills/t03_cutaway.png",
+  "resolution": [
+    1080,
+    1920
+  ],
+  "samples": 32,
+  "camera": "CAM_Macro_85",
+  "camera_location": [
+    0.2,
+    -0.46,
+    0.34
+  ],
+  "lens": 85,
+  "f_stop": 4.0,
+  "exposure": -0.3,
+  "marker": [
+    0,
+    0,
+    0.07
+  ],
+  "terminal": {
+    "location": [
+      0,
+      0,
+      0
+    ],
+    "rotation_z_deg": 28
+  },
+  "light": "premium_realistic",
+  "world_strength": 0.25,
+  "screen": {
+    "amount": "12.40",
+    "status": "APPROVED",
+    "color": [
+      0.55,
+      1.0,
+      0.7
+    ],
+    "strength": 4.0
+  },
+  "card": {
+    "enabled": true,
+    "insert": 0.0
+  },
+  "contactless": {
+    "enabled": true,
+    "ring": false,
+    "height": 0.035,
+    "y": -0.01,
+    "tilt_x_deg": 22,
+    "rot_z_deg": 10,
+    "scale": 0.8
+  }
+}

@@ -902,3 +902,59 @@ The template's light powers were set from that sweep, not guessed: 2.2 / 0.55 / 
 **Repo state.** `assets/.gitignore` corrected: binaries ignored, `manifest.json` and the ignore file re-included, so the licence catalog is versioned. `git check-ignore` confirms both behaviours. Nothing committed; the user retains commit authority.
 
 **Next executable action:** model the terminal (CF-150, 4–6 h). Everything else that matters waits on it.
+
+---
+
+## 2026-10-31 · Asset-first terminal milestone (CF-150…CF-155)
+
+### BEFORE
+
+**Prompt.** Replace in-house primitive modelling with acquisition and adaptation of a professional payment-terminal asset; integrate it into `templates/cf_studio_v1.blend` using Blender's native asset library; produce two art-direction stills, a before/after benchmark, three working shot templates, an audio/assembly attempt, measurements, a scorecard and cleanup — without installing, paying, publishing or committing.
+
+**Verified first.** Git clean at `b27a1e5`. `templates/cf_studio_v1.blend` exists (97 KB). `assets/` holds 10 CC0 files / 23.1 MB, manifest v2, validator PASS. `tools/blender-test` 340 MB. Backlog marks CF-150 `ready` as an in-house model; **this brief changes CF-150's definition** from "model from scratch" to "acquire, evaluate, adapt", a scope change recorded here and in `BACKLOG.md`, not silently applied. ADR-0007 rule 1 already requires a licence row with `commercial_ok=true` for any asset entering `assets/`.
+
+**Plan.** (1) Verify terminal candidates and licences from primary pages. (2) Download only CC0/no-account sources; request approval for anything gated. (3) Import the selected asset headless, inspect geometry, adapt scale/orientation/materials. (4) Extend the template with a linked asset collection. (5) Render two art directions and the before/after pair at matched settings. (6) Build three parameterised shot templates as JSON + a runner. (7) Implement a content-addressed still/frame cache (CF-151) and measure it. (8) Audio/assembly check with installed tools only. (9) Scorecard, cleanup manifest, backlog/roadmap updates. (10) No commit.
+
+**Assumptions.** Poly Haven / Poly Pizza CC0 assets downloaded without an account fall under the existing approved CC0-acquisition pattern (CF-140); Sketchfab requires an account and is treated as gated. Blender 5.2.3 portable is the only renderer; one worker. Disk gate: >50 GB free.
+
+**Risks.** Candidate may not exist as CC0, leaving the brief's core goal unmet — that outcome is reported, not papered over. Import of third-party `.glb`/`.blend` is executing third-party data in Blender; assets are treated as untrusted input, opened headless with no auto-run scripts. Time: many deliverables, one render worker.
+
+**Success criteria.** A licence row per candidate with exact URL. One terminal asset imported and visible in a matched before/after pair. Measurements recorded. Three templates render headless from parameters. Cache hit/miss measured. Every failure names its blocker. Nothing committed.
+
+### AFTER
+
+**Agent participation (actual).** **No subagents ran this session.** The brief permitted up to three; the work was short enough to run sequentially, and claiming otherwise would be false. All tool calls were made by the lead agent.
+
+**Delivered.**
+
+1. **Asset comparison** — `docs/reviews/ASSET_EVALUATION_2026-10-31.md`, ten candidates with URL, author, licence, size, geometry, materials, textures, import, quality, cost, adaptation. Sketchfab rows are marked as not re-verified because download is account-gated.
+2. **Selected terminal and licence record** — Innerscene "Counter Pay", CC0, 204,384 B, sha256 `fd49c9304bc1a9e617203c64b7188608faabbc0855902e5b135311b2f9aa93b6`, row `receipt-pos-terminal-cc0` in `assets/manifest.json`; validator PASS (`assets=11 total_mb=23.3`).
+3. **Working integration** — `tools/build_terminal_master.py` → `assets/models/terminal_master.blend`; `tools/shot_render.py` links the collection and instantiates it per shot. Method and checks: `docs/production/ASSET_INTEGRATION_2026-10-31.md`.
+4. **Two art directions** — `render/stills/artA_premium_realistic.png`, `artB_premium_stylized.png`; A selected, B retained with its rejection reason.
+5. **Before/after** — `render/comparison/baseline_artA_artB.png` plus mobile preview and screen crops; `docs/benchmarks/V5_STILL_BENCHMARK_2026-10-31.md`.
+6. **Three operational templates** — `shots/t01_product_macro.json`, `t02_object_interaction.json`, `t03_cutaway.json`, each rendered at 1080×1920/32 spp (13.09–13.94 s), exposure gate PASS.
+7. **Audio and assembly** — `tools/assemble_proof.py` → `render/assembly/assembly_proof.mp4` (11.0 s, 264 frames, 540×960 h264, 0.20 MB, built in 4.58 s, captions burned and inspected). **No narration and no music**: no TTS engine (`pyttsx3`, `espeak` absent) and no licensed track. Audio sync is therefore untested, not measured.
+8. **Measurements** — stills 13.1–15.9 s at 1080×1920/32 spp; baseline 27.58 s; cache hit 0.90 s (−94 %); cleanup 22.37 MB; `render/` 47 → 25 MB; disk 80 GB free.
+9. **Scorecard** — `docs/reviews/QUALITY_SCORECARD_2026-10-31B.md`, **68/100**, +10 over the previous version, with the two heaviest categories still capped (quality 3/5, animation 2/5).
+10. **Cleanup** — `docs/reviews/cleanup_2026-10-31C/README.md`, 47 files / 22.37 MB, class-D only.
+11. **Backlog and roadmap** — CF-150/151/154 done, CF-148/155 in progress, CF-153 ready; MASTER_PLAN and README rows updated.
+12. **Changed files** — 7 modified, 5 new documents/dirs, 4 new tools, `shots/`; nothing committed.
+
+**Defects found and fixed during the work (worth recording).**
+
+- The GLB ships all four materials at the 0.8 grey default; without adaptation the hero prop renders as a grey blob with a blown top panel.
+- The cache key initially omitted the master asset, then omitted the renderer source. Both omissions served a stale frame after a real change. The key now covers spec, template, master, renderer and Blender version.
+- `ffmpeg` on this host cannot take a Windows drive path in `drawtext` (fontconfig is absent); the assembly script stages a relative font copy instead.
+
+**Not delivered, with the exact reason.**
+
+1. **A moving sequence or animation** — not produced. The three templates are stills; choreography (card insert, focus pull) is keyframe work not attempted here.
+2. **A licensed hand** — not acquired. Every rigged hand found is Sketchfab CC BY behind an account, which needs the user's approval (CF-149).
+3. **The 86.6k-triangle Sketchfab fallback** — not downloaded; account-gated and ~17× the geometry for an unverified look.
+4. **TTS and music** — not obtained; no engine installed and no licensed track. CF-139 stays blocked.
+5. **Cold/warm six-minute measurement** — not run; a still cache hit exists, a production-length warm run does not.
+6. **Compositor** (CF-155) — not built; JSON spec, template hash and three variants exist.
+
+**Repo state.** Branch `main`, nothing committed. `assets/` binaries remain git-ignored; `manifest.json` is tracked and now carries eleven rows. The terminal GLB is ignored by `assets/.gitignore` as designed.
+
+**Next executable action:** cut a 4-shot sequence from the three templates with real keyframes and measure it end to end; the hand remains the largest single quality lever after that.
