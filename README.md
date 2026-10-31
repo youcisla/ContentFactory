@@ -19,7 +19,7 @@ Documentation-first repository for an automated educational video pipeline (Mone
 | Prototypes | R1 static SVG, R2 CSS animation, cinematic WebGL — all built | [`prototypes/`](prototypes/) |
 | Benchmark B0 (vector render) | **Not run — awaiting approval** | [`docs/benchmarks/README.md`](docs/benchmarks/README.md) |
 | Production pipeline | Not started — blocked on V4 | [`tasks/BACKLOG.md`](tasks/BACKLOG.md) |
-| Premium 3D reset — research and specification | **Done as documents; nothing built.** Ten Blender candidates evaluated; CC0 asset supply mapped (no CC0 terminal or card exists); asset-driven architecture proposed (ADR-0007, proposed); V5 treatment with shot list. Blocked on asset-download and isolated-tool approvals (CF-140, CF-143) | [`EVALUATION_2026-10-31.md`](docs/research/open-source-projects/EVALUATION_2026-10-31.md), [`ASSET_STRATEGY_2026-10-31.md`](docs/research/assets/ASSET_STRATEGY_2026-10-31.md), [`ADR-0007`](docs/architecture/decisions/ADR-0007-asset-driven-scene-pipeline.md), [`PREMIUM_TREATMENT_V5.md`](docs/creative/PREMIUM_TREATMENT_V5.md) |
+| Premium 3D reset — foundation | **Assets and template built; no benchmark.** Ten Blender candidates evaluated; CC0 catalog (10 files, 23.1 MB) validated; `templates/cf_studio_v1.blend` renders headless; shot library and six-minute spec written; scorecard 58/100. Blocked on hero props, a licensed hand, audio and a cache | [`EVALUATION_2026-10-31.md`](docs/research/open-source-projects/EVALUATION_2026-10-31.md), [`ASSET_STRATEGY_2026-10-31.md`](docs/research/assets/ASSET_STRATEGY_2026-10-31.md), [`ADR-0007`](docs/architecture/decisions/ADR-0007-asset-driven-scene-pipeline.md), [`PREMIUM_TREATMENT_V5.md`](docs/creative/PREMIUM_TREATMENT_V5.md) |
 
 ## Current recommendation
 

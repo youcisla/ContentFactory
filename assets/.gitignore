@@ -1,0 +1,6 @@
+# Asset binaries stay out of git (ADR-0007: avoid bloating history).
+# The catalog and its provenance must remain versioned, or a clone loses
+# the licence record that makes the binaries reproducible.
+*
+!manifest.json
+!.gitignore

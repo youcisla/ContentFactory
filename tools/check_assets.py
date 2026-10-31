@@ -13,6 +13,8 @@ import os
 import sys
 
 REQUIRED = ("path", "source_url", "author", "licence", "retrieved_at", "commercial_ok", "sha256")
+CATALOG = ("id", "category", "format", "style", "blender_compatible", "reuse")
+FORMATS = {"hdr", "exr", "jpg", "jpeg", "png", "blend", "glb", "gltf", "fbx", "usd", "usdz"}
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 
 
@@ -31,6 +33,24 @@ def main(manifest_path):
     rows = data.get("assets", [])
     if not rows:
         problems.append("manifest has no assets")
+    seen_ids, seen_hashes = {}, {}
+    for i, row in enumerate(rows):
+        rid = row.get("id")
+        if rid:
+            if rid in seen_ids:
+                problems.append(f"{rid}: duplicate asset id")
+            seen_ids[rid] = True
+        sha = row.get("sha256")
+        if sha:
+            if sha in seen_hashes:
+                problems.append(f"{row.get('path')}: duplicate content, same sha256 as {seen_hashes[sha]}")
+            seen_hashes[sha] = row.get("path")
+        for field in CATALOG:
+            if row.get(field) in (None, ""):
+                problems.append(f"{row.get('path')}: catalog field missing: {field}")
+        fmt = str(row.get("format", "")).lower()
+        if fmt and fmt not in FORMATS:
+            problems.append(f"{row.get('path')}: unsupported format {fmt}")
     for i, row in enumerate(rows):
         name = row.get("path", f"row {i}")
         for field in REQUIRED:

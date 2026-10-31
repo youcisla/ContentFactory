@@ -100,6 +100,31 @@ Hero props are modelled in-house. No CC BY asset is required for a first benchma
 | Terminal geometry | 4–6 h modelling, or CC BY fallback |
 | Hand | Decision: drop, CC BY, or model in-house |
 
+## 7b. Second pass — individual assets verified 2026-10-31 (evening)
+
+Found by a follow-up read-only hunt. Nothing here is downloaded; each row is a licence-checked candidate.
+
+| Slot | Asset | Licence | Faces | Account | Note |
+|---|---|---|---:|---|---|
+| Payment terminal | GAME READY POS-TERMINAL ASSET (Oxygen3D, Sketchfab) | CC BY 4.0 | 4,146 | yes | Generic, no brand in the title. Best terminal candidate |
+| Payment terminal | POS Machine (J-Toastie, Poly Pizza) | CC-BY 3.0 | not shown | no | Low-poly; stylised only |
+| Payment terminal | POS terminal (Vladyslav.Yarovyi, Sketchfab) | CC BY 4.0 | 38,444 | yes | Heavier; inspect for brand marks |
+| Rigged hand | First Person hands rigged (David Fischer, Sketchfab) | CC BY 4.0 | 8,152 | yes | `.blend` + `.fbx`, lightest verified rigged hand |
+| Rigged human | Animated Men Pack (Quaternius) | **CC0 on pack page** | — | unknown | Conflicts with the site-wide QAL notice. Treat as CC0 only with written confirmation |
+| Animation clips | Universal Animation Library (Quaternius) | CC0 | — | unknown | 120+ clips, rigid-humanoid rig. Same QAL caveat |
+| Character animation | Mixamo | Adobe FAQ: royalty-free for commercial projects | — | yes | Account requires Adobe ID; clips are FBX |
+| Smartphone | Phone (Quaternius, Poly Pizza) | CC0 1.0 | — | no | GLB |
+| ATM | ATM (J-Toastie, Poly Pizza) | CC-BY 3.0 | — | no | GLB |
+| Server rack | Server Rack (Shalmon, Sketchfab) | CC BY 4.0 | 74,823 | yes | Heavy but usable |
+| Bank desk | Desk (Bank Teller) (abdillaamy, Sketchfab) | CC BY 4.0 | 9,594 | yes | |
+| Camera rigs | Add Camera Rigs (extensions.blender.org) | GPL-3.0-or-later | — | no | Dolly, crane, 2D rigs — tooling, not content |
+
+**Still no CC0 payment terminal, ATM, server rack or rigged hand.** The free path to hero props is CC BY with an on-screen credit, or modelling.
+
+**Rejected:** "The Bank Hall" (Veterock, CC BY) — description says it was ripped from a game, so the uploader cannot license it. PAX-A920 and any Pine Labs device — real brand/trade dress.
+
+**New risk:** Sketchfab CC BY is uploader-declared. A hidden brand logo or a ripped model can still invalidate reuse. Every downloaded model gets inspected before it enters `assets/`.
+
 ## 8. Open questions
 
 1. Whether Sketchfab's CC BY models download in a Blender-importable format was not verified per asset.

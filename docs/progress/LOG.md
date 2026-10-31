@@ -845,3 +845,60 @@ User approved the asset download named as the next action. Downloaded a 10-file 
 Asset import proven headless: `CF_ASSET_HDRI` swaps the procedural world for the HDR and rendered frame 150 at **26.81 s** (1080×1920, 32 spp) against a 14.83 s procedural baseline — **+81 %**, the most expensive change measured so far. Visually the change is subtle at strength 0.3: environment alone does not make primitive geometry look premium, which is what the treatment predicted.
 
 `assets/` is currently untracked. Whether 23.1 MB of binaries belong in git or should be re-fetched from the manifest URLs is the user's call; nothing was committed.
+
+---
+
+## 2026-10-31 · Asset-first production transformation
+
+### BEFORE
+
+**Prompt.** Transform the project into an asset-first, template-driven studio: research ready-made assets, build a catalog and reusable Blender template, a shot-template library, two art-direction candidates, a six-minute production spec and, as far as resources allow, a six-minute prototype; measure cold and warm production; perform an authorized cleanup of generated artifacts; update roadmap, scorecard and evidence. No installs, no paid services, no commit.
+
+**Verified first.** `assets/` holds 10 CC0 files / 23.1 MB with sha256 in `assets/manifest.json`; `tools/check_assets.py` PASSes and fails on a bad row. `tools/blender-test` holds **621 files / 411 MB**, all untracked. Disk free 77 GB. `assets/.gitignore` currently contains a bare `*`, which also hides `manifest.json`.
+
+**Plan.** (1) Log this entry. (2) Spawn one read-only asset-hunt agent; do not repeat the prior licence sweep. (3) Extend the manifest into a catalog with the fields the brief names, and extend the validator (duplicates, missing textures, format, polygon count where recorded). (4) Build CF-142 as a real `.blend` template with collections, camera rig, light rig, HDRI world and render/compositing settings; verify headless. (5) Render one still per art direction and compare. (6) Write the shot-template specification, the six-minute production spec, the scorecard and the cleanup manifest. (7) Delete only generated, regenerable, untracked files that meet all ten conditions; record every path.
+
+**Assumptions.** Downloads remain limited to the already-approved CC0 set; new assets are researched and catalogued, not fetched. The six-minute film cannot be produced in this session; the deliverable will be the specification plus an explicit limiting-capability statement.
+
+**Risks.** Breadth over depth: twelve deliverables invite shallow work. Cleanup is destructive; a wrong call is unrecoverable. Template work can regress the frozen V4 baseline if it edits that file. Time and context.
+
+**Success criteria.** Catalog validates. Template opens headless and renders a frame with recorded hash. Two stills exist with an honest comparison. Cleanup has a manifest and recovers space without touching evidence. Every unbuilt deliverable names its exact blocker. No commit.
+
+### AFTER
+
+**Agent participation (actual).** One read-only subagent ran for this brief: an asset hunt (59 tool uses, ~149 k tokens) that verified individual models and licence terms. No render worker ran in parallel. The earlier three research agents belong to the previous brief and are reported there. Nothing in this entry claims an agent did work it did not do.
+
+**Delivered.**
+
+- `assets/manifest.json` extended into a catalog (id, category, format, style, blender_compatible, reuse, dependencies), version 2, 10 rows.
+- `tools/check_assets.py` extended: duplicate id, duplicate sha256, unsupported format, catalog fields. Real set PASSes (`assets=10 total_mb=23.1`); negative control exits 1 with four FAIL lines.
+- `tools/build_template.py` → `templates/cf_studio_v1.blend` (CF-142, done). Collections CAMERAS/LIGHTS/SET/PROPS/RIGS, two tracking cameras (85 mm f/8, 35 mm f/5.6), HDRI world at 0.3, PBR counter/backdrop/trim, 3.0 m backdrop, AgX Medium High Contrast, 180° shutter.
+- `docs/production/SHOT_LIBRARY.md` — ten templates specified, one built, with a five-point template contract.
+- `docs/production/SIX_MINUTE_SPEC.md` — cold vs warm definitions, shot budget, arithmetic showing why 8,640 locally rendered frames cannot fit ten minutes.
+- `docs/reviews/QUALITY_SCORECARD_2026-10-31.md` — **58/100**, weighted, with per-category evidence.
+- `docs/reviews/cleanup_2026-10-31B/` — cleanup manifest and per-file hash inventory.
+- Second-pass asset rows appended to `ASSET_STRATEGY_2026-10-31.md`.
+
+**Measured.**
+
+| Item | Value |
+|---|---|
+| Template frame, 540×960/16 spp | **5.33 s**, mean 0.212, p95 0.526 |
+| Light-scale sweep on the template | 1.0 → mean 0.501/p95 0.909 (blown); 0.3 → 0.352; 0.1 → 0.212; 0.03 → 0.104 |
+| Cleanup | 173 files, **≈ 81 MB** reclaimed; `tools/blender-test` 411 MB → 340 MB; disk free 77 GB → **81 GB** |
+
+The template's light powers were set from that sweep, not guessed: 2.2 / 0.55 / 7.0 W at a 4:1 key:fill ratio.
+
+**Cleanup discipline.** Only the six series whose generator tag is unambiguous were removed. `anim_*` was **not** removed: its `.txt` records settings but no generator command, so provenance is uncertain and the brief says leave it. Class B evidence (`v4final`, `proof_seq`, `c136noemit`) was retained. Reproduction was proven by regenerating `v4seq` (24/24 frames, same 26.2 % card deviation) before deletion.
+
+**Not delivered, with the exact reason.**
+
+1. **Two art-direction candidates** — not rendered. A second direction needs the same hero prop; with a primitive subject the comparison would measure lighting, not art direction.
+2. **Premium benchmark** — not produced. No terminal geometry, no human, no licensed hand. The V4 baseline remains the only 3D film.
+3. **Six-minute animatic or film** — not produced. Missing audio (CF-139), hero props, a cache, and a six-minute script. `SIX_MINUTE_SPEC.md` §5 states this in order.
+4. **Cold/warm timing** — not measured, because neither run exists. `SIX_MINUTE_SPEC.md` gives the arithmetic, not a result.
+5. **Shot templates 2–10** — specified, not built; building empty shells would satisfy a count and prove nothing.
+
+**Repo state.** `assets/.gitignore` corrected: binaries ignored, `manifest.json` and the ignore file re-included, so the licence catalog is versioned. `git check-ignore` confirms both behaviours. Nothing committed; the user retains commit authority.
+
+**Next executable action:** model the terminal (CF-150, 4–6 h). Everything else that matters waits on it.
