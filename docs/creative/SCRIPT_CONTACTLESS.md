@@ -1,7 +1,7 @@
 # Script — "What Actually Happens When You Tap a Card"
 
 Format: 9:16, 24 fps. Board: `docs/creative/STORYBOARD_CONTACTLESS.md`. Claims: `docs/research/contactless-claims/CLAIMS.md`.
-Status: **script locked for the 10 s scene; the 40 s cut is written but not rendered.**
+Status: **40 s animatic built (CF-137) — `render/animatic/contactless_40s_animatic.mp4`. Not a final render: no audio, and S4–S6 are diagrams.**
 
 ## Audio status — read this before reviewing
 
@@ -17,10 +17,10 @@ Every narration line traces to a claim marked VERIFIED in the claim sheet. No li
 |---|---|---|---|
 | S1 | "This card has no battery. The reader's field powers it." | 1 — passive card powered by induction | VERIFIED |
 | S2 | "The field induces a current in this coil. The chip wakes up." | 1, 2 — induction; 13.56 MHz ISO/IEC 14443 | VERIFIED |
-| S3 | "The card adds a one-time code. The request is unique to this tap." | 4 — one-time cryptogram per transaction | VERIFIED |
-| S4 | "The request goes to the merchant's bank, the card network, then your bank." | 6 — terminal → acquirer → network → issuer | VERIFIED |
-| S5 | "Approved means your bank set the money aside. It has not moved." | 7 — settlement follows authorisation; 8 — hold can differ | VERIFIED |
-| S6 | "Later, the banks settle up. The tap only asked permission." | 7 — clearing and settlement | VERIFIED |
+| S3 | "The card adds a one-time code. It is good for this tap only." | 4 — one-time cryptogram per transaction | VERIFIED |
+| S4 | "The request passes four stops: the shop, its bank, the network, your card issuer." | 6 — terminal → acquirer → network → issuer | VERIFIED |
+| S5 | "Approved means the issuer reserved the amount. Nothing moved yet." | 7 — settlement follows authorisation; 8 — hold can differ | VERIFIED |
+| S6 | "Later, clearing and settlement move the money. The tap only asked permission." | 7 — clearing and settlement | VERIFIED |
 
 Claim 3 (tap distance around 4 cm) is used as a caption in S1, not a narration line — it is a fact about handling, not about mechanism.
 Claim 5 (tokenisation) is **not used**. It is the only PARTIAL claim and the precise version would need a scheme-specific source. Omitting it costs nothing; overstating it would.
@@ -29,15 +29,22 @@ Claim 5 (tokenisation) is **not used**. It is the only PARTIAL claim and the pre
 
 Timings are for the 40 s cut. The rendered scene currently covers S1–S3 compressed into 10 s; see `docs/creative/STORYBOARD_CONTACTLESS.md` §8.
 
-| # | Time | Caption (max 6 words) | Narration (PLACEHOLDER, max 18 words) |
-|---|---|---|---|
-| S1 | 0.0–4.0 | NO BATTERY. NO CONTACT. | This card has no battery. The reader's field powers it. |
-| S1b | 1.5–4.0 | HOLD IT ABOUT 4 CM | — |
-| S2 | 4.0–10.0 | THE READER POWERS THE CARD | The field induces a current in this coil. The chip wakes up. |
-| S3 | 10.0–17.0 | A ONE-TIME CODE | The card adds a one-time code. The request is unique to this tap. |
-| S4 | 17.0–24.0 | THE DECISION IS OFF-SCREEN | The request goes to the merchant's bank, the card network, then your bank. |
-| S5 | 24.0–32.0 | APPROVED IS NOT PAID | Approved means your bank set the money aside. It has not moved. |
-| S6 | 32.0–40.0 | SETTLEMENT MOVES MONEY LATER | Later, the banks settle up. The tap only asked permission. |
+These are the **cues actually burned into the 40 s animatic**, in `render/captions/contactless_40s.srt`. They differ from the board's six-beat caption plan because the 3D material covers three beats in 10 s, not 17 s; the diagram segments carry the rest.
+
+| # | Time | Caption | Beat | Narration (PLACEHOLDER, max 18 words) |
+|---|---|---|---|---|
+| 1 | 0.3–1.9 | NO BATTERY. NO CONTACT. | S1 | This card has no battery. The reader's field powers it. |
+| 2 | 1.9–4.4 | HOLD IT ABOUT 4 CM | S1 | — |
+| 3 | 4.4–6.2 | THE READER POWERS THE CARD | S2 | The field induces a current in this coil. The chip wakes up. |
+| 4 | 6.2–9.7 | A ONE-TIME CODE | S3 | The card adds a one-time code. It is good for this tap only. |
+| 5 | 10.3–13.0 | FOUR PARTIES, ONE MESSAGE | S4 | The request passes four stops: the shop, its bank, the network, your card issuer. |
+| 6 | 13.0–16.7 | THE ROUTE TO YOUR BANK | S4 | The request is passed down that chain, one hop at a time. |
+| 7 | 17.3–20.0 | THE DECISION IS OFF-SCREEN | S4 | Your card issuer makes the decision, off-screen. |
+| 8 | 20.0–23.7 | NOBODY IN THE SHOP DECIDES | S4 | The terminal only asks. The issuer sends the answer. |
+| 9 | 24.3–27.6 | APPROVED IS NOT PAID | S5 | Approved means the issuer reserved the amount. Nothing moved yet. |
+| 10 | 27.6–31.7 | THE AMOUNT IS RESERVED | S5 | On a credit card, available credit falls; on a debit card, the funds are held. |
+| 11 | 32.3–35.6 | SETTLEMENT MOVES MONEY LATER | S6 | Later, clearing and settlement move the money between the banks. |
+| 12 | 35.6–39.5 | THE TAP ONLY ASKED PERMISSION | S6 | The tap was a question. Settlement moves the money later. |
 
 ## The line the film exists to deliver
 
@@ -68,5 +75,18 @@ Also prohibited by the board: "instant", "0.3 seconds", "bank-grade", "military-
 ## Limitations, stated
 
 - No narration recorded; no audio track of any kind, including music.
-- The rendered scene is a single continuous take. The 40 s cut requires re-timing to 960 frames plus a return leg on the packet, which is written but not built.
-- Captions exist as timing data ready for burn-in; they are not baked into the current render.
+- Only 10 s of picture is rendered 3D. The remaining 30 s of the animatic are SVG diagrams with a moving marker, assembled by `tools/build_animatic.py`. Calling the animatic "the film" would overstate it.
+- Captions **are** baked into the animatic (`render/captions/contactless_40s.srt`, 12 cues). No caption is attached to audio, because there is no audio.
+- The 3D third still needs its 1080×1920 render and, for a full 3D version, a packet return leg. Both are scoped in `STORYBOARD_CONTACTLESS.md` §10 with measured costs.
+
+## Factual review — 2026-10-31
+
+Three statements were overstated and have been corrected before the animatic was built.
+
+1. **"Approved means your bank set the money aside."** True for a debit card, where funds are held against a balance, but wrong for a credit card, where no money is set aside — *available credit* is held instead, and the credit limit itself is unchanged. The film cannot assume which card the viewer holds. Corrected to "the issuer reserved the amount", with the credit/debit distinction shown explicitly on screen in the hold diagram ("On a credit card this is a reduced credit limit, not money taken from an account").
+2. **"The request is unique to this tap."** The *cryptogram* is single-use; the request is not a thing that can be unique. Softened to "good for this tap only", which is what claim 4 actually supports.
+3. **"Later, the banks settle up."** "Settle up" reads as a bilateral payment between two banks on a known schedule. The claim sheet supports no timing and no netting mechanism. Corrected to "the banks settle the net difference", and no caption or diagram states a timeframe — there is no "T+1", no "next day", no "seconds" anywhere in the film.
+
+Checked and left alone: 4 cm (claim 3), 13.56 MHz and ISO/IEC 14443 (claim 2), "no battery" (claim 1), "a hold, not a payment" (claims 7 and 8), "four stops in the message path" (claim 6). None of these overstates its source.
+
+Deliberately still absent: tokenisation (claim 5, PARTIAL), any latency figure, any security or encryption claim, any brand mark.

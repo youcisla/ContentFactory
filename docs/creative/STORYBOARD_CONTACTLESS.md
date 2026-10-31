@@ -20,7 +20,7 @@ One deliberate addition: a **colour-location rule**. Approval green may appear o
 
 No new hue, no new material, no new geometry. The terminal screen is treated as a state light, not a display: cyan idle, green approved. The V4 screen still reads as a slab (CF-136), so no diegetic text is put on it. Captions are edit-layer overlays in the system sans; no font files.
 
-The treatment's "type appears twice only" rule was sized for the 10 s POC. This 40 s cut uses one caption per beat, six total, because the film must work silently. All captions are Paper, one line, lower third; no background box.
+The treatment's "type appears twice only" rule was sized for the 10 s POC. This 40 s cut uses one caption per beat, six total, because the film must work silently. **This is the plan for the full 3D cut, which is not built.** The animatic that exists uses 12 cues, because 10 s of 3D carries three beats and the diagrams carry the rest — see §9 and §10. Where the two differ, `render/captions/contactless_40s.srt` is what has been burned in. All captions are Paper, one line, lower third; no background box.
 
 The current `CardBody` material is a dark navy (0.016, 0.030, 0.082), not Graphite. Either grade it to Graphite or accept the navy as the card's coat; one line, no geometry. The board does not depend on the difference.
 
@@ -32,10 +32,10 @@ The film is one continuous take. The six rows are beats, not cuts. The camera is
 |---|---|---|---|---|---|---|---|---|
 | S1 | 0.0–4.0 | 4.0 s | Existing dolly, start framing; no new move | Card edge and amber chip above the terminal; the card descends into the reader's field; no contact | The reader emits an oscillating magnetic field; the card has no battery, so the field couples to its coil | A tap is not a button press; the reader powers the card | "NO BATTERY. NO CONTACT." (4) | PLACEHOLDER — "This card has no battery. The reader's field powers it." (10) |
 | S2 | 4.0–10.0 | 6.0 s | Existing dolly, slow push; no new move | Four coil bars light from the card's edge inward; the chip wakes; the terminal screen rises from idle cyan | The 13.56 MHz field induces an alternating current in the coil; the chip rectifies it and powers up | The card is alive only while it is in the field; remove it and it sleeps | "THE READER POWERS THE CARD" (5) | PLACEHOLDER — "The field induces a current in this coil. The chip wakes up." (12) |
-| S3 | 10.0–17.0 | 7.0 s | Existing dolly, mid-push; no new move | NFC indicator lights; a cyan packet forms at the reader head and lifts | Card and reader exchange data; the card returns a one-time cryptogram for this transaction; the terminal builds the request | The request is single-use and tied to this tap | "A ONE-TIME CODE" (3) | PLACEHOLDER — "The card adds a one-time code. The request is unique to this tap." (13) |
-| S4 | 17.0–24.0 | 7.0 s | Existing dolly, push toward the terminal face; no new move | The packet arcs up and holds near the top edge; the terminal and card hold still | The terminal sends the authorization request to the merchant's bank, the card network, and the issuer | The decision happens off-screen, outside the room | "THE DECISION IS OFF-SCREEN" (4) | PLACEHOLDER — "The request goes to the merchant's bank, the card network, then your bank." (13) |
-| S5 | 24.0–32.0 | 8.0 s | Existing dolly, near-end framing; no new move | The packet returns green along the same arc and docks at the terminal; the indicator and screen turn green; the card is unchanged; the chip stays amber | The issuer approves and returns an authorization response; it places a hold on the amount | Approved is a hold, not a payment; the money is reserved, not transferred | "APPROVED IS NOT PAID" (4) | PLACEHOLDER — "Approved means your bank set the money aside. It has not moved." (12) |
-| S6 | 32.0–40.0 | 8.0 s | Existing dolly completes at 36 s, then holds; no new move | Terminal stays green; card and chip unchanged; the packet has shrunk to a point; the camera settles | Later, clearing and settlement move funds between banks; the merchant's payment is settled then | Authorization, clearing, and settlement are three steps; the tap only did the first | "SETTLEMENT MOVES MONEY LATER" (4) | PLACEHOLDER — "Later, the banks settle up. The tap only asked permission." (10) |
+| S3 | 10.0–17.0 | 7.0 s | Existing dolly, mid-push; no new move | NFC indicator lights; a cyan packet forms at the reader head and lifts | Card and reader exchange data; the card returns a one-time cryptogram for this transaction; the terminal builds the request | The code is single-use and tied to this tap | "A ONE-TIME CODE" (3) | PLACEHOLDER — "The card adds a one-time code. It is good for this tap only." (13) |
+| S4 | 17.0–24.0 | 7.0 s | Existing dolly, push toward the terminal face; no new move | The packet arcs up and holds near the top edge; the terminal and card hold still | The terminal sends the request to the acquirer, which routes it through the network to the issuer | The decision happens off-screen, outside the room | "THE DECISION IS OFF-SCREEN" (4) | PLACEHOLDER — "The request goes to the merchant's bank, the card network, then your bank." (13) |
+| S5 | 24.0–32.0 | 8.0 s | Existing dolly, near-end framing; no new move | The packet returns green along the same arc and docks at the terminal; the indicator and screen turn green; the card is unchanged; the chip stays amber | The issuer approves and returns an authorization response; it places a hold on the amount | Approved is a hold, not a payment; the amount is held, not transferred | "APPROVED IS NOT PAID" (4) | PLACEHOLDER — "Approved means the issuer reserved the amount. Nothing moved yet." (12) |
+| S6 | 32.0–40.0 | 8.0 s | Existing dolly completes at 36 s, then holds; no new move | Terminal stays green; card and chip unchanged; the packet has shrunk to a point; the camera settles | Later, clearing and settlement move funds between banks; the merchant's payment is settled then | Authorization, clearing, and settlement are three steps; the tap only did the first | "SETTLEMENT MOVES MONEY LATER" (4) | PLACEHOLDER — "Later, clearing and settlement move the money. The tap only asked permission." (10) |
 
 Caption timing: S1 0.5 s, S2 5.0 s, S3 11.0 s, S4 18.0 s, S5 27.5 s, S6 33.0 s. S5's caption lands on the green light, not at the shot start.
 
@@ -57,7 +57,7 @@ The four required marks: hook 1.5 s, mechanism 12 s, reversal 28 s, close 40 s.
 
 **The reversal: people read "approved" as "paid," but a contactless tap only obtains an authorization hold, and the money does not move until clearing and settlement.**
 
-This is a real misconception, not a strawman. "Approved" on the terminal and "pending" in a banking app are the same event: the issuer has reserved funds. The posted balance changes later, after clearing and settlement. The film scopes the claim to card payments; it does not claim every payment scheme is slow, and it does not put a time on settlement.
+This is a real misconception, not a strawman. "Approved" on the terminal and "pending" in a banking app are two views of the same authorization: the issuer has placed a hold. The posted balance changes later, after clearing and settlement. The film scopes the claim to card payments; it does not claim every payment scheme is slow, and it does not put a time on settlement.
 
 The visual proof is the colour-location rule: green appears on the terminal, never on the card; the returning packet stops at the terminal and does not travel to the card.
 
@@ -122,3 +122,35 @@ The board was written against the pre-fix scene and works around three defects. 
 | Six caps in 40 s, ~38 min render | **Not rendered.** The 10 s, three-beat cut is what exists: 240 frames, 371 s. The 40 s cut needs a return leg and a re-time to 960 frames, written in §8 but not built |
 
 **What this does not change:** the reversal, the colour-location rule, the six-beat structure, the caption set, and every claim in the script map. The rendered 10 s cut covers the board's S1–S3 compressed; S4–S6 remain unbuilt.
+
+## 10. Final production plan
+
+### What the animatic is
+
+`render/animatic/contactless_40s_animatic.mp4` is a **previsualisation**: 960 frames, 40.000 s, 540×960, 24 fps, captions burned in, **no audio of any kind**. Frame 1–240 is finished 3D. Frames 241–960 are SVG diagrams with a moving marker and a slow push-in. It is the right length, the right order, and the right claims. It is not final picture and it must not be published as such.
+
+### Measured render cost
+
+One 1080×1920 frame at 8 samples costs **8.51 s** (median of frames 2–4; frame 1 costs 11.4 s because it compiles shaders). The same scene at 540×960 costs 1.54 s. Output is 1.82 MB per 1080p PNG.
+
+| Target | Frames | Basis | Time | PNG disk |
+|---|---:|---|---:|---:|
+| 10 s of 3D at 540×960 (what exists) | 240 | 1.54 s measured | 6 min | 116 MB |
+| 10 s of 3D at 1080×1920 | 240 | 8.51 s measured | **34 min** (range 28–40) | 437 MB |
+| 40 s entirely in 3D at 1080×1920 | 960 | 8.51 s measured | **136 min** | 1.75 GB |
+
+Disk is **not** the constraint: 77 GB free against 1.75 GB worst case. The constraint is that the network beats have no photographable geometry, so making them 3D buys cost and no accuracy.
+
+### Priority order
+
+1. **Decide the 3D/2D split.** Recommendation: keep 2D for S4–S6. A card network is not a place; a diagram is the honest representation, and it is minutes of work rather than two hours of render. Revisit only if the 2D/3D cut reads badly to a viewer who has not seen the board.
+2. **Build the missing mechanism.** The 40 s cut needs the packet's return leg and a re-time to 960 frames. That is the only thing standing between the current 10 s shot and a complete 3D S1–S3 at final quality.
+3. **Render S1–S3 at 1080×1920.** 240 frames, 34 minutes, 437 MB. Verified geometry gate first (`CF_GEOMETRY_ONLY=1`), then stills, then the sequence — the same order that caught the packet exit, the occlusion, and the card crop.
+4. **Audio is blocked.** There is no narration, no music, no ambience. Producing any of it needs either a recording or an approved TTS/model download, which the approval gate has not granted. Until then the film ships captioned, and this must be stated wherever it is shown.
+5. **Captions are ready.** `render/captions/contactless_40s.srt`, 12 cues, already burned in by `tools/build_animatic.py`.
+
+### Gates still closed
+
+- **V3/V4 creative acceptance** — the user's, not the script's.
+- **G1 claims** — the claim sheet is verified but the gate record does not exist.
+- **G5 publication** — not requested and not closeable by an agent.

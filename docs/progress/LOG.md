@@ -749,3 +749,41 @@ The §5 estimate was ~108 s; actual 74.6 s. The estimate was 31 % conservative.
 **Risks noted.** Disk free is **49 GB**, below the 50 GB stop condition recorded in `APPROVAL_GATES.md` G6. Nothing here writes further large output without freeing space first.
 
 **Next executable action:** `CF_FRAMES=960 CF_STORY_FRAMES=960 CF_PREVIEW_SAMPLES=8` after adding the packet return leg — or free disk first.
+
+---
+
+## 2026-10-31 (later) · Milestone: 40 s animatic + safe path to final
+
+### BEFORE
+
+**Prompt:** deliver a complete 40 s animatic, not a final render. Disk cleanup proposal, factual review of the six-beat script, scene split (Blender for spatial mechanism, lightweight graphics for the network), reuse of validated assets, validate comprehension/timing/readability/accuracy/continuity, adversarial review, update records. No heavy rendering while the disk gate is breached.
+
+**Measured first:** disk free is **77 GB**, up from 49 GB at the previous checkpoint. The 50 GB stop threshold in `APPROVAL_GATES.md` G6 is therefore **not** currently breached. I did not free that space and am not claiming it; the earlier reading is kept in the record.
+
+**Plan:** (1) duplicate-hash the render artefacts and write a cleanup proposal with no deletions; (2) review the script's hold/approval/settlement wording and correct overstatements; (3) build the 2D network scenes as SVG, rasterise with the installed Chrome, assemble a 40 s animatic from the existing 240 frames plus those stills; (4) spawn independent QA agents on the result; (5) fix what they find.
+
+**Assumptions:** an animatic is a previsualisation, not final picture. Captions are burned in; there is still no audio of any kind. The 10 s 3D cut is reused at native speed, not padded.
+
+**Risks:** 2D scenes drifting into slideshow pacing; no Pillow, so 2D rasterisation depends on Chrome headless; context budget.
+
+**Success criteria:** a playable 40 s file with six visually distinct beats, timed captions, and a written statement of what is animatic and what is finished.
+
+### AFTER
+
+**Delivered.** `render/animatic/contactless_40s_animatic.mp4` — 960 frames, 40.000 s, 540×960, 24 fps, 12 caption cues burned in, **no audio stream** (verified: 0 audio streams). Built by `tools/build_animatic.py`, which asserts its own contract: every encode is checked against an expected packet count before it replaces its target, and the run fails unless the final probes as exactly 960 frames and 40.000 s.
+
+**Scenes.** A 0–10 s rendered 3D (240 frames, reused, not re-rendered for the animatic). B–E are SVG diagrams rasterised by Chrome and assembled by ffmpeg, with a moving marker for the request and the response. Sources in `render/scenes/`.
+
+**Disk.** 77 GB free at start, up from 49 GB at the previous checkpoint — I did not free it. **Zero content-identical duplicates** among 523 PNGs, so the waste is superseded sequences, not copies. Proposal: 80.0 MB across 168 frames, nothing deleted, blocked on authorisation. Recorded in `CLEANUP_AND_ID_RECONCILIATION_V2.md` §6.
+
+**Factual review.** An independent read-only reviewer returned 1 BLOCKER, 7 SHOULD-FIX, 5 NITPICK. The blocker was real: the hold diagram described a *balance* being held and a *reduced credit limit*, both wrong for a credit card — an authorization reduces **available credit** and leaves the limit unchanged. All but one nitpick are fixed in the scene sources, the script and the board. "NO CONTACT" is kept, with the reason recorded.
+
+**Technical review.** A second independent reviewer returned 1 BLOCKER, 5 SHOULD-FIX. The blocker: segment A's length was whatever frames existed on disk, so dropping in the planned 960-frame render would have produced a 70 s file with every caption after 10 s mistimed, exit code 0. Fixed with a pinned frame count plus a contract assertion at the end of the build.
+
+**Reassessment found a new defect.** Correcting the card crop moved the camera's end pose, which raised the card-region curve error from 21.0 % to **26.3 %**, over the 25 % band. Whole-frame error is 6.81 %. Cause: `curve_at()` models light distance only and has no view-dependent specular term. **The gate was not widened.** Verdict recorded as FAIL, with two candidate fixes and neither applied.
+
+**Measured costs.** 1080×1920 at 8 samples: 8.51 s/frame steady state (frame 1 costs 11.4 s for shader compilation); 1.82 MB per frame. 240 frames ≈ 34 min ≈ 437 MB. The full-resolution render was **not** run.
+
+**Not done.** No audio of any kind. The 1080×1920 master. The packet return leg for a full-3D 40 s cut.
+
+**Next executable action:** choose one of the two card-region fixes in `ANIMATIC_QA_2026-10-31.md` §4 — model the view term, or make the card diffuse — then re-render 240 frames and confirm the region error returns under 25 %.

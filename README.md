@@ -2,7 +2,7 @@
 
 Documentation-first repository for an automated educational video pipeline (Money · Technology · Digital Safety), producing 9:16 Shorts and 16:9 long-form.
 
-**Phase: benchmarks and prototypes.** Blender 5.2.3 is installed and Eevee is measured on this host; SVG, CSS and WebGL prototypes exist; no production pipeline code yet. See `docs/roadmap/MASTER_PLAN.md` for gates.
+**Phase: V4 plus a first animatic.** Blender 5.2.3 and Eevee are measured on this host; a 40 s animatic exists (CF-137), built from a 10 s rendered 3D scene and SVG diagrams. No production pipeline code yet, and there is no audio. See `docs/roadmap/MASTER_PLAN.md` for gates.
 
 ---
 
@@ -34,7 +34,7 @@ D scores one point higher than A but carries vendor, network, and cost dependenc
 ## Non-negotiable constraints (measured 2026-10-30)
 
 - No supported Cycles GPU (integrated Intel adapter only) → 3D needs CPU or rented GPU.
-- 58.2 GB free on C: → disk is a production ceiling.
+- Disk on C: measured 58.2 GB free on 2026-10-30 and 77 GB free on 2026-10-31 — it moves by tens of GB between sessions, so it is a production ceiling, not a fixed number. The G6 stop condition is 50 GB free.
 - Device is corporate-managed, non-admin shell → installations require written approval.
 - Publishing target is YouTube only → no multi-platform scheduler needed.
 

@@ -63,3 +63,26 @@ v1 §5 defines nine renumberings, `CF-028…CF-036` to `CF-128…CF-136`. Checke
 ## 5. Open items carried forward
 
 Unchanged from v1 §6 and still open: R1 (README scores three.js "Rejected" while `prototypes/cinematic/` is a three.js POC), R2 (four ADRs still `proposed`), and the documentation-consistency score held at 4/5.
+
+## 6. Disk proposal — 2026-10-31 (measured, nothing deleted)
+
+Trigger: the disk reading at the previous checkpoint was 49 GB free, below the 50 GB stop condition in `APPROVAL_GATES.md` G6. It is now **77 GB free**; I did not free that space and make no claim about what did. The proposal below stands either way.
+
+**Duplicate check first.** `md5sum` over all 523 PNGs in `tools/blender-test/` found **zero content-identical pairs**. There is nothing to deduplicate: the waste is *superseded* sequences, not copies. That is why this proposal removes nothing on "same file" grounds.
+
+| Group | Frames | Size | Class | Basis |
+|---|---:|---:|---|---|
+| `anim`, `seqA`, `seqB`, `v4seq`, `candB_seq`, `candB_seq2` | 144 | 68.4 MB | D | Regenerable from `blender_scene_v4.py`; each has a `.txt` with its command |
+| `c136seq` | 24 | 11.6 MB | D | Superseded by `v4final` |
+| `c136*` iteration stills | 13 | 6.4 MB | C | Small; the record of what was rejected and why |
+| `c136noemit` | 24 | 11.6 MB | B | The controlled experiment cited in CF-135 |
+| `v4final` | 240 | 115.6 MB | B | Frames behind the delivered 10 s cut |
+| `proof_seq` | 4 | 85.2 MB | B | 4K stills behind the sample-count curve |
+| **Total on disk** | **523** | **396.2 MB** | | |
+| **Proposed reclaim** | **168** | **80.0 MB** | | |
+
+**Never delete:** `tools/blender/` — 929 MB, the entire render toolchain, 387 MB to re-download plus extraction.
+
+**Method, if authorised:** move Class D to `tools/blender-test/_quarantine/`, regenerate one sequence per group from its recorded command, compare frame count, then delete. No group is deleted before one successful regeneration.
+
+**Blocked on:** user authorisation. This is a deletion of pre-existing files and the project rule requires it. Until then nothing moves.

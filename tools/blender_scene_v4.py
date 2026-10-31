@@ -318,12 +318,15 @@ def smoothstep(t):
 # above the subject a card held 10 mm over the display still projects across it.
 # 23 degrees plus a forward tap point is what actually separates card and screen.
 CAM_START = mathutils.Vector((0.115, -0.420, 0.278))
-CAM_END = mathutils.Vector((0.085, -0.320, 0.226))
+# End framing pulls back 15 mm and aims at the card rather than at x=0. At the
+# previous end pose the card's left edge crossed the frame boundary for the
+# last ~10 frames, which reads as an accident rather than a crop.
+CAM_END = mathutils.Vector((0.078, -0.335, 0.232))
 # Aim below the card, not above it. Aiming at 0.088-0.100 put the subject in
 # the bottom third and left two-thirds of the frame empty; the packet needs that
 # headroom, the terminal does not.
 TGT_START = mathutils.Vector((0.0, 0.012, 0.074))
-TGT_END = mathutils.Vector((0.0, 0.028, 0.082))
+TGT_END = mathutils.Vector((0.010, 0.028, 0.082))
 
 bpy.ops.object.camera_add(location=CAM_START)
 cam = bpy.context.object
