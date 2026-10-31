@@ -76,7 +76,9 @@ These override the general guidelines above where they conflict.
 
 ## Phase
 
-Documentation only. No installs, no environments, no model downloads, no benchmarks, no services, no implementation code until a backlog task is approved and unblocked.
+**V4 — one excellent scene.** Documentation-only ended 2026-10-30 when G0 was approved and CF-019, CF-020, CF-025 and CF-128–CF-133 were approved and completed. Phase state is in `docs/roadmap/MASTER_PLAN.md`, not here.
+
+The standing rule is unchanged: no installs, environments, model downloads, benchmarks, services, or implementation code without a backlog task marked approved and unblocked. B0 remains unauthorised.
 
 ## Source of truth
 

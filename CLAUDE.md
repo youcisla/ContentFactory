@@ -10,7 +10,9 @@ Read in this order before acting:
 
 ## Current phase
 
-**Documentation only.** Do not install packages, create environments, download models, run benchmarks, start services, or write implementation code unless a task in `tasks/BACKLOG.md` is marked approved and unblocked.
+**V4 — one excellent scene.** The documentation-only phase ended on 2026-10-30, when the user approved G0 and then CF-019/CF-020 (Blender install), CF-025 (corrected Eevee scene) and CF-128–CF-133 (bounded local renders), all of which are `done`. Phase and gate state live in `docs/roadmap/MASTER_PLAN.md` §4.
+
+The rule that defined that phase still governs: do not install packages, create environments, download models, run benchmarks, start services, or write implementation code unless a task in `tasks/BACKLOG.md` is marked approved and unblocked. B0 (CF-015/CF-026) is still unauthorised. This section records state; it does not widen any approval.
 
 ## Hard rules
 

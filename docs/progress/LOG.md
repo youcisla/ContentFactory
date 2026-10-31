@@ -711,3 +711,41 @@ The §5 estimate was ~108 s; actual 74.6 s. The estimate was 31 % conservative.
 **Not done this cycle:** CF-134/135/136 fixes, and the 30–45 s Short. No new renders were produced. The blocker is remaining working budget in this session, not a resource, permission, or dependency.
 
 **Next:** resume at CF-134 — packet end point needs a second reduction so it stays in frame for its full travel.
+
+---
+
+## 2026-10-31 · Resume — doc correction, CF-134/135/136, Short assembly
+
+### BEFORE
+
+**Prompt:** resume ContentFactory autonomously. Correct stale documentation-only phase descriptions preserving historical approval boundaries; verify task-ID mapping and fix double counting in the cleanup manifest; finish CF-134 (packet visible and collision-free for full journey, camera-space geometry tests), CF-135 (tracked regions, dolly exposure criteria, documented intentional lighting changes, orbit regressions preserved), CF-136 (recognizable terminal, convincing materials, focal hierarchy, coherent art direction); produce premium storyboard + source-verified script; assemble the best Short achievable within limits.
+
+**Plan:** (1) subagent compatibility probe against the current provider, read-only. (2) Documentation corrections: MASTER_PLAN status line, CLAUDE.md/AGENTS.md current-phase sections, BACKLOG stale ID refs, CLEANUP manifest double count. (3) Read `tools/blender_scene_v4.py`; add camera-space geometry assertions for the packet; implement the declared expected-exposure curve; rebuild terminal geometry and materials. (4) Stills before sequences. (5) Storyboard + script. (6) Assemble.
+
+**Assumptions:** the V4 scene work already authorised under CF-021/CF-133 continues; no new install, no download, no cloud, no publishing. Local Eevee renders at 540x960 are within the already-approved resource envelope.
+
+**Risks:** render time on Intel iGPU; art-direction quality is the open unknown, not mechanics; context budget.
+
+**Success criteria:** geometry test fails on the old path and passes on the new one; region deviation under a declared curve passes or is honestly reported; terminal recognisable at 360 px; storyboard and script on disk with sourced claims; render or an explicit statement that it was not produced.
+
+### AFTER
+
+**Agents used (actual):** 1 read-only compatibility probe, 1 source-verification agent, 1 storyboard agent. **Not** used: concurrent render workers. Probe returned `DRIFT_MAX = 0.05`, the exact `sequence_qa` signature and 3 threshold keys — all correct, so runtime agents work on this backend. Probe cost 69.5 k subagent tokens; verification 156.7 k; storyboard 149.3 k.
+
+**Documentation corrections.** `CLAUDE.md`, `AGENTS.md` and `MASTER_PLAN.md` header said "documentation only"; the project has been in V4 since 2026-10-30. Corrected without widening any approval — B0 stays unauthorised and the phase text now says so. ID mapping verified: nine rows one-to-one, no reuse. Two stale references fixed in the live backlog (`CF-133 → CF-134/135`, `CF-129 blocked by CF-028 → CF-128`). Cleanup manifest double count corrected in **`docs/reviews/CLEANUP_AND_ID_RECONCILIATION_V2.md`** — v1 is an audit and stays unedited per ADR-0006. Real cleanup is **68.4 MB**, not 233 MB.
+
+**CF-134 — done.** Added `packet_geometry()`: NDC framing with a 6 % margin, OBB clearance, and a camera→packet ray cast. Current path PASSes (edge margin 0.140, clearance 3.19 mm). **Negative control**: the `a7d4a18` path FAILs the same gate — hidden behind the card at f14–15, 4.8 mm inside it at f16, right-edge breach at f23–24. The gate has been shown to fail. The occlusion check found a defect no framing test could see: the packet launched *behind the card's far edge*.
+
+**CF-135 — done.** `curve_at()` predicts exposure from the actual light positions and inverse-square falloff; error is a normalised relative error, so the curve needs no fitted scale. `CURVE_MAX = 0.25` applies only when a curve is supplied — the 5 % orbit rule is untouched. 240-frame result: whole frame **5.18 %**, terminal **3.37 %**, chip **19.97 %**, card **21.01 %**, flicker **0.00006**, verdict PASS. The card residual is **not** the scripted emission: an emission-off control run gave 33.27 % against 33.39 %, a 0.12-point change. It is view-dependent specular, now labelled as such instead of excused.
+
+**CF-136 — done.** Terminal rebuilt as body + tilted head + glossy bezel + dark display glass + amount line + approval tick + 12-key keypad + card slot + status LED. Two structural faults found by inspecting renders, not by reasoning: the card was held directly over the display (hiding it), and every material sat within 12 % of the others. Fixed with a forward tap point, a 23° camera elevation, and value/specular separation. Four render iterations; each defect above was named from an image before being fixed.
+
+**Video produced.** `tools/blender-test/contactless_10s_captioned.mp4` — 540×960, 24 fps, 240 frames, 10.0 s, 729 KB, captions burned in from `render/captions/contactless_10s.srt`. Raw encode 683 KB. Render: median **1.54 s/frame**, 371 s of render, ~7 min wall clock. Selection PNGs 110.2 MiB.
+
+**Script and storyboard.** `docs/creative/SCRIPT_CONTACTLESS.md` and `docs/creative/STORYBOARD_CONTACTLESS.md`, claims bound to `docs/research/contactless-claims/CLAIMS.md` (7 VERIFIED, 1 PARTIAL, 0 unverified). **No narration audio exists** — every line is a labelled placeholder and the film is built to work captioned. The PARTIAL claim (tokenisation) is deliberately unused.
+
+**Not done.** The 40 s, six-beat cut is written but **not built**: it needs a return leg on the packet and a re-time to 960 frames, about 25 min of render. The 1080×1920 master has not been run (≈4× render time). No music, no voice.
+
+**Risks noted.** Disk free is **49 GB**, below the 50 GB stop condition recorded in `APPROVAL_GATES.md` G6. Nothing here writes further large output without freeing space first.
+
+**Next executable action:** `CF_FRAMES=960 CF_STORY_FRAMES=960 CF_PREVIEW_SAMPLES=8` after adding the packet return leg — or free disk first.

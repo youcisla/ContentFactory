@@ -38,6 +38,15 @@ STILL_FRAME = int(os.environ.get("CF_STILL_FRAME", "0"))
 SHOT = os.environ.get("CF_SHOT", "product_still")
 TAG = os.environ.get("CF_TAG", "v4")
 EXPECTED = os.environ.get("CF_EXPECTED_CURVE", "")  # comma-separated luma targets
+# Geometry-only mode walks the animation and asserts screen/collision safety
+# without rendering. A trajectory defect is a geometry fact; finding it by
+# rendering 24 frames costs a minute and states nothing you can regression-test.
+GEOMETRY_ONLY = os.environ.get("CF_GEOMETRY_ONLY", "0") == "1"
+# Controlled-experiment switch: zero the scripted emission ramps but leave all
+# geometry and lighting alone. Running the sequence twice — once with the ramps,
+# once without — is what separates "the coil is why the card region brightened"
+# from "the card region brightened, and the coil is a plausible excuse".
+EMISSION_GAIN = 0.0 if os.environ.get("CF_NO_EMISSION", "0") == "1" else 1.0
 
 OUT_DIR = cf_qa.report_dir(__file__)
 os.makedirs(OUT_DIR, exist_ok=True)
@@ -47,13 +56,21 @@ scene = bpy.context.scene
 
 
 # -------------------------------------------------------------- helpers ---
-def material(name, base, rough, metallic=0.0, coat=0.0, emit=None, emit_str=0.0):
+def material(name, base, rough, metallic=0.0, coat=0.0, emit=None, emit_str=0.0, spec=None):
     m = bpy.data.materials.new(name)
     m.use_nodes = True
     b = m.node_tree.nodes.get("Principled BSDF")
     b.inputs["Base Color"].default_value = (*base, 1.0)
     b.inputs["Roughness"].default_value = rough
     b.inputs["Metallic"].default_value = metallic
+    if spec is not None:
+        # Dielectric reflection level. A display with an anti-reflective coating
+        # returns far less than the default 0.5, which is the only reliable way
+        # to stop a large light painting a white sheet across a flat panel.
+        for k in ("Specular IOR Level", "Specular"):
+            if k in b.inputs:
+                b.inputs[k].default_value = spec
+                break
     if coat:
         for k in ("Coat Weight", "Clearcoat"):
             if k in b.inputs:
@@ -109,34 +126,129 @@ floor.data.materials.append(material("Floor", (0.008, 0.009, 0.011), 0.55))
 # it gives the metallic chip something to reflect without any extra geometry.
 
 
-# --- terminal: base slab + raised reader head -------------------------------
-term_base = rounded("TermBase", (0.098, 0.104, 0.014), (0, 0.006, 0.007), bevel=0.006, segments=12)
-shell = material("Shell", (0.070, 0.073, 0.080), 0.46, metallic=0.10)
-term_base.data.materials.append(shell)
+# --- terminal ---------------------------------------------------------------
+# A countertop reader built from the parts a viewer can name: a body, a tilted
+# display in a glossy bezel, a keypad with coloured cancel and enter keys, a
+# card slot, and a status LED on the reader lip.
+#
+# The previous version was a slab with a bright rectangle on it, and it read as
+# stacked rounded boxes for one reason: shell, head and screen were all the same
+# cool grey within 12 % of each other, so nothing told the eye where the display
+# ended and the housing began. Separation here is done with value and specular
+# contrast — near-black gloss bezel, dark glass, mid graphite shell, coloured
+# keys — not with more light. That is also the fix for focal hierarchy: the eye
+# goes card, chip, screen, then rests on a deliberately quiet housing.
+SHELL = material("Shell", (0.028, 0.028, 0.031), 0.46, metallic=0.05, coat=0.10)
+# Bezels at 0.18 roughness behave as mirrors under a small key light and render
+# as a white line around the display — the frame read brighter than the screen.
+# Near-black on purpose. At the shell's value the bezel had no edge, so the
+# display appeared to float on the housing with no frame around it.
+BEZEL = material("Bezel", (0.004, 0.004, 0.005), 0.35, coat=0.35, spec=0.25)
+KEYPAD = material("Key", (0.030, 0.031, 0.034), 0.42, coat=0.15)
+KEY_CANCEL = material("KeyCancel", (0.220, 0.030, 0.028), 0.40, coat=0.20)
+KEY_ENTER = material("KeyEnter", (0.020, 0.140, 0.075), 0.40, coat=0.20)
+SLOT = material("CardSlot", (0.003, 0.003, 0.004), 0.28, coat=0.40)
 
-term_head = rounded("TermHead", (0.090, 0.048, 0.034), (0, 0.016, 0.030), bevel=0.009, segments=14, rot=(-0.22, 0, 0))
-term_head.data.materials.append(shell)
+term_base = rounded("TermBase", (0.098, 0.108, 0.016), (0, 0.004, 0.008),
+                    bevel=0.007, segments=12)
+term_base.data.materials.append(SHELL)
 
-# Parented to the head so it sits flush on the sloped face. Positioned in
-# world space it protruded through the housing as a bright wedge.
-screen = rounded("Screen", (0.070, 0.030, 0.0014), (0, 0, 0), bevel=0.0012, segments=4)
-screen.parent = term_head
-screen.matrix_parent_inverse = mathutils.Matrix.Identity(4)
-screen.location = (0, 0.0, 0.0176)
-screen_mat = material("Screen", (0.006, 0.045, 0.042), 0.10, emit=(0.04, 0.45, 0.40), emit_str=0.35)
-screen.data.materials.append(screen_mat)
+# Tilt is POSITIVE: a reader's display faces up and toward the user. The old
+# negative tilt turned the screen away from camera, which foreshortened it into
+# exactly the coloured slab CF-136 describes.
+HEAD_TILT = 0.20
+term_head = rounded("TermHead", (0.092, 0.052, 0.036), (0, 0.020, 0.032),
+                    bevel=0.008, segments=14, rot=(HEAD_TILT, 0, 0))
+term_head.data.materials.append(SHELL)
 
-# NFC indicator on the reader face: the visual "the reader saw the card" beat.
-indicator = rounded("Indicator", (0.010, 0.010, 0.0012), (0.034, 0.012, 0.0168),
-                    bevel=0.0012, segments=4)
+
+def on_head(name, dims, local, mat, bevel=0.0008, segments=3):
+    """Attach a part to the reader head in head-local space."""
+    ob = rounded(name, dims, (0, 0, 0), bevel=bevel, segments=segments)
+    ob.data.materials.append(mat)
+    ob.parent = term_head
+    ob.matrix_parent_inverse = mathutils.Matrix.Identity(4)
+    ob.location = local
+    return ob
+
+
+# Head half-height is 0.018, so these stack outward from the top face.
+on_head("ScreenBezel", (0.080, 0.042, 0.0016), (0, 0.0, 0.0184), BEZEL, bevel=0.0012, segments=4)
+# Dark glass, almost no emission of its own. The old screen glowed as one flat
+# teal slab, which reads as a sticker. A display is dark glass with lit content.
+# Matte, not glass. Two passes proved the point: at roughness 0.06, and again at
+# 0.22 with a coat, the panel mirrored the key light as a single white sheet and
+# every display element under it vanished. A display reads as bright content on
+# near-black; the surface itself must return almost nothing. Dropping the coat
+# and raising roughness to 0.38 removed the sheet without touching the lights.
+screen_mat = material("ScreenGlass", (0.002, 0.005, 0.007), 0.45, coat=0.0,
+                      emit=(0.02, 0.16, 0.16), emit_str=0.10, spec=0.10)
+screen = on_head("Screen", (0.070, 0.032, 0.0010), (0, 0.0, 0.0194), screen_mat,
+                 bevel=0.0010, segments=4)
+
+# Display content: an amount line and a status glyph. Geometry, not a texture —
+# there is no font available and text at this size would be illegible at 360 px
+# anyway. A bar says "an amount is here"; a check that lights up says "approved".
+# Emission strengths here are low because AgX desaturates anything bright: at
+# 3.2 the cyan bar clipped to white and the display lost its colour entirely.
+INK = material("ScreenInk", (0.10, 0.55, 0.55), 0.30, emit=(0.30, 0.90, 0.95), emit_str=0.9)
+on_head("ScreenAmount", (0.034, 0.0048, 0.0002), (-0.012, 0.0085, 0.0201), INK)
+
+# The approval tick: two arms sharing a vertex at (0.0140, 0.0062). Laid out by
+# solving for that shared point; the first attempt placed both by eye, they
+# crossed, and the result read as a white star rather than a tick. Its emission
+# is the only channel that animates, so the flip to green needs no colour keys.
+TICK = material("ScreenTick", (0.05, 0.55, 0.28), 0.30, emit=(0.20, 1.0, 0.55), emit_str=0.0)
+_TICK_VERTEX = (0.0140, 0.0062)
+for _name, _length, _angle in (("ScreenTickShort", 0.0040, -50.0),
+                               ("ScreenTickLong", 0.0075, 50.0)):
+    _a = math.radians(_angle)
+    _dx, _dy = math.cos(_a), math.sin(_a)
+    _sign = 1.0 if _angle > 0 else -1.0
+    _cx = _TICK_VERTEX[0] + _sign * _length / 2 * _dx
+    _cy = _TICK_VERTEX[1] + _sign * _length / 2 * _dy
+    _arm = on_head(_name, (_length, 0.0016, 0.0003), (_cx, _cy, 0.0203), TICK,
+                   bevel=0.0002, segments=2)
+    _arm.rotation_euler = (0, 0, _a)
+
+# Keypad on the base deck, in front of the head. Four rows of three, with the
+# bottom row carrying cancel / zero / enter — the layout every reader has, and
+# the only colour on the housing.
+# Row pitch is wider than key depth on purpose: at the earlier pitch the gaps
+# closed up under the bevel and twelve keys rendered as one ribbed block.
+KEY_ROW = (-0.0130, -0.0216, -0.0302, -0.0388)
+KEY_COL = (-0.022, 0.0, 0.022)
+for _r, _y in enumerate(KEY_ROW):
+    for _c, _x in enumerate(KEY_COL):
+        _mat = KEYPAD
+        if _r == 3:
+            _mat = KEY_CANCEL if _c == 0 else (KEY_ENTER if _c == 2 else KEYPAD)
+        rounded(f"Key_{_r}{_c}", (0.017, 0.0062, 0.0022), (_x, _y, 0.0164),
+                bevel=0.0009, segments=3).data.materials.append(_mat)
+
+# Card slot: a dark recess along the front edge of the body.
+rounded("CardSlot", (0.058, 0.0030, 0.0018), (0, -0.0498, 0.0105),
+        bevel=0.0006, segments=3).data.materials.append(SLOT)
+
+# Status LED on the reader lip: the "the reader saw the card" beat. Small on
+# purpose — the screen and the coil carry the beat at readable size, this is an
+# accent, and claiming more for it would be describing a pixel.
 ind_mat = material("Indicator", (0.02, 0.5, 0.45), 0.2, emit=(0.15, 1.0, 0.85), emit_str=0.0)
-indicator.data.materials.append(ind_mat)
+indicator = on_head("Indicator", (0.0075, 0.0030, 0.0006), (0.0335, -0.0215, 0.0186),
+                    ind_mat, bevel=0.0004, segments=3)
 
 # --- card -------------------------------------------------------------------
 CARD_W, CARD_H, CARD_T = 0.0856, 0.0540, 0.00076
-card = rounded("Card", (CARD_W, CARD_H, CARD_T), (0.004, 0.004, 0.086),
-               bevel=0.0012, segments=3, rot=(0.10, -0.06, 0.16))
-card.data.materials.append(material("CardBody", (0.016, 0.030, 0.082), 0.20, coat=0.8))
+# The card is held over the reader's front lip, not over the display. Centred on
+# the screen — the earlier position — an 86 mm card at 9 mm above it hid the
+# whole panel from a camera looking down, which is why every attempt to make the
+# screen "read as a display" failed: nothing was visible to read.
+CARD_X, CARD_Y = 0.004, -0.046
+# Thin bevel: at 0.0012 the edge caught a hard specular all the way round and
+# the card rendered with a white LED border instead of a rounded edge.
+card = rounded("Card", (CARD_W, CARD_H, CARD_T), (CARD_X, CARD_Y, 0.086),
+               bevel=0.0004, segments=3, rot=(0.10, -0.06, 0.16))
+card.data.materials.append(material("CardBody", (0.010, 0.018, 0.050), 0.45, coat=0.10, spec=0.30))
 bpy.context.view_layer.update()
 CARD_M = card.matrix_world.copy()
 
@@ -182,7 +294,9 @@ bpy.ops.mesh.primitive_uv_sphere_add(radius=0.0060, location=(0.0, 0.02, 0.05))
 packet = bpy.context.object
 packet.name = "Packet"
 bpy.ops.object.shade_smooth()
-pkt_mat = material("Packet", (0.3, 1.0, 0.9), 0.25, emit=(0.30, 1.0, 0.85), emit_str=0.0)
+# Dark base, bright emission. A light base colour plus emission summed to white
+# under AgX and the request read as a paper disc instead of a cyan signal.
+pkt_mat = material("Packet", (0.02, 0.20, 0.18), 0.25, emit=(0.05, 0.95, 0.80), emit_str=0.0)
 packet.data.materials.append(pkt_mat)
 
 
@@ -196,14 +310,20 @@ def smoothstep(t):
     return t * t * (3.0 - 2.0 * t)
 
 
-# 55 mm, not 85. At 85 mm the framed height was 26 cm, so the departing request
+# 65 mm, not 85. At 85 mm the framed height was 26 cm, so the departing request
 # left the top of frame within six frames and the third beat was invisible.
 # A wider lens shows the whole terminal plus the air above it, which is where
 # the story's payoff happens.
-CAM_START = mathutils.Vector((0.215, -0.470, 0.255))
-CAM_END = mathutils.Vector((0.150, -0.350, 0.205))
-TGT_START = mathutils.Vector((0.0, 0.012, 0.088))
-TGT_END = mathutils.Vector((0.0, 0.028, 0.100))
+# Camera elevation is a composition constraint, not a taste: from 17 degrees
+# above the subject a card held 10 mm over the display still projects across it.
+# 23 degrees plus a forward tap point is what actually separates card and screen.
+CAM_START = mathutils.Vector((0.115, -0.420, 0.278))
+CAM_END = mathutils.Vector((0.085, -0.320, 0.226))
+# Aim below the card, not above it. Aiming at 0.088-0.100 put the subject in
+# the bottom third and left two-thirds of the frame empty; the packet needs that
+# headroom, the terminal does not.
+TGT_START = mathutils.Vector((0.0, 0.012, 0.074))
+TGT_END = mathutils.Vector((0.0, 0.028, 0.082))
 
 bpy.ops.object.camera_add(location=CAM_START)
 cam = bpy.context.object
@@ -229,14 +349,22 @@ rig_root = bpy.data.objects.new("LightRig", None)
 scene.collection.objects.link(rig_root)
 
 _lights = [
-    area_light("Key", (0.300, -0.300, 0.340), 0.130, 5.2, (1.00, 0.97, 0.93)),
+    # Larger and dimmer per unit area than the original 0.13 m / 5.2 W: the same
+    # illuminance spread over a wider source, so a flat panel reflects a soft
+    # gradient instead of a hot disc.
+    area_light("Key", (0.300, -0.300, 0.340), 0.220, 11.0, (1.00, 0.97, 0.93)),
     area_light("Fill", (-0.320, -0.180, 0.170), 0.220, 0.55, (0.86, 0.91, 1.00)),
-    area_light("Rim", (-0.120, 0.380, 0.360), 0.090, 3.0, (0.78, 0.90, 1.00)),
+    area_light("Rim", (-0.120, 0.380, 0.360), 0.090, 1.0, (0.78, 0.90, 1.00)),
     area_light("Back", (0.060, 0.300, 0.180), 0.140, 1.2, (0.85, 0.95, 1.00)),
 ]
 for _lt in _lights:
     _lt.parent = rig_root
     _lt.matrix_parent_inverse = rig_root.matrix_world.inverted()
+
+# Kept for the declared exposure curve. An area light's falloff is not exactly
+# inverse-square, but over the 0.35-0.55 m range this shot works in the error is
+# under a percent, and the curve is a prediction whose accuracy is reported.
+LIGHT_POWER = [(_lt, _lt.data.energy) for _lt in _lights]
 
 # Studio gradient world: dark below, cool grey above. View-independent fill, so
 # it does not drift as the camera moves, and metal has a gradient to mirror.
@@ -261,6 +389,28 @@ scene.world = world
 
 # ------------------------------------------------------------ animation ---
 STORY_FRAMES = int(os.environ.get("CF_STORY_FRAMES", "24"))
+
+
+def _vec_env(name, default):
+    raw = os.environ.get(name, "").strip()
+    if not raw:
+        return mathutils.Vector(default)
+    return mathutils.Vector(tuple(float(v) for v in raw.split(",")))
+
+
+# Packet Bezier control points, overridable so the geometry test can replay a
+# known-bad trajectory as a negative control. A gate that has never failed has
+# not been shown to work.
+# Launch point sits above the card plane (z 0.060) and behind the card's y
+# extent. At the old z it was screened by the card's far edge for its first
+# frame — in frame, in the open, and still invisible, which only the ray cast
+# could see.
+PKT_A = _vec_env("CF_PACKET_A", (0.0, 0.048, 0.068))
+# Apex lowered with the camera: closing the framing 20 % pushed the old endpoint
+# through the top edge at frames 23-24. The geometry gate found it before a
+# render did, which is the point of having one.
+PKT_B = _vec_env("CF_PACKET_B", (0.006, 0.068, 0.150))
+PKT_C = _vec_env("CF_PACKET_C", (0.004, 0.080, 0.086))
 
 
 def at(f):
@@ -288,39 +438,45 @@ def story(f):
 
     # Beat 1: the card descends.
     descend = smoothstep(min(p / 0.34, 1.0))
-    card.location = (0.004, 0.004, 0.086 - 0.026 * descend)
+    card.location = (CARD_X, CARD_Y, 0.086 - 0.030 * descend)
 
     # Beat 2: the coil energises as the card enters the field.
     coil = smoothstep(min(max((p - 0.16) / 0.22, 0.0), 1.0))
-    key_emission_at(coil_mat, 14.0 * coil)
-    screen_mat.node_tree.nodes["Principled BSDF"].inputs["Emission Strength"].default_value = 0.35 + 0.55 * coil
+    # 14 clipped the coil to white, so the antenna read as a LED border on the
+    # card rather than as copper carrying current. 4.0 keeps it cyan.
+    key_emission_at(coil_mat, 4.0 * coil * EMISSION_GAIN)
 
-    # Beat 3: the reader confirms, then the request departs.
+    # Beat 3: the reader confirms, then the request departs. The approval tick
+    # is what makes the screen read as a display rather than a lamp, so it
+    # lights with the LED instead of the glass brightening as a whole.
     confirm = smoothstep(min(max((p - 0.42) / 0.14, 0.0), 1.0))
-    key_emission_at(ind_mat, 9.0 * confirm)
+    key_emission_at(ind_mat, 3.0 * confirm * EMISSION_GAIN)
+    key_emission_at(TICK, 2.2 * confirm * EMISSION_GAIN)
 
     depart = smoothstep(min(max((p - 0.55) / 0.45, 0.0), 1.0))
     if depart <= 0.0:
         packet.location = (0.0, 0.042, 0.058)
         packet.scale = (0.001, 0.001, 0.001)
     else:
-        # End point is chosen to stay inside the framed height: the request
-        # must be seen leaving, not leave the frame immediately.
-        # Start behind the reader head so the packet never passes through the
-        # card, and end inside the vertical half-FOV (checked by geometry, not
-        # by re-rendering).
-        a = mathutils.Vector((0.0, 0.042, 0.058))
-        b = mathutils.Vector((0.006, 0.078, 0.168))
-        c = mathutils.Vector((0.004, 0.080, 0.086))
-        # Quadratic Bezier: the request leaves the reader and arcs away, rather
-        # than travelling in a straight line that reads as a UI animation.
-        pos = (1 - depart) ** 2 * a + 2 * (1 - depart) * depart * c + depart ** 2 * b
+        # The request must be seen leaving: start behind the reader head so it
+        # never crosses the card, and end inside the frame. Both properties are
+        # asserted by `packet_geometry`, which walks this curve without
+        # rendering — the earlier path was tuned by eye across several renders.
+        # Quadratic Bezier: the request arcs away from the reader rather than
+        # travelling in a straight line that reads as a UI animation.
+        pos = ((1 - depart) ** 2 * PKT_A
+               + 2 * (1 - depart) * depart * PKT_C
+               + depart ** 2 * PKT_B)
         packet.location = pos
+        # No fade-out. The request used to shrink to a dot and go dark over the
+        # last three frames, which reads as "it vanished" rather than "it left".
+        # It now stays lit and in frame, and the next shot carries it onward.
         grow = smoothstep(min(depart / 0.18, 1.0))
-        fade = 1.0 - smoothstep(max((depart - 0.82) / 0.18, 0.0))
-        s = 0.15 + 0.85 * grow * fade
+        s = 0.15 + 0.85 * grow
         packet.scale = (s, s, s)
-    key_emission_at(pkt_mat, 22.0 * smoothstep(min(depart / 0.12, 1.0)) * (1.0 - smoothstep(max((depart - 0.85) / 0.15, 0.0))))
+    # 22 clipped to white under AgX, so the packet read as a paper disc rather
+    # than an energised request. 6.0 keeps the cyan hue inside the gamut.
+    key_emission_at(pkt_mat, 1.2 * smoothstep(min(depart / 0.12, 1.0)))
 
 
 def key_emission_at(mat, value):
@@ -340,16 +496,10 @@ def keyframe_story(frames):
         card.keyframe_insert("location", frame=f)
         packet.keyframe_insert("location", frame=f)
         packet.keyframe_insert("scale", frame=f)
-        for mat, mult in ((coil_mat, 14.0), (ind_mat, 9.0)):
+        for mat in (coil_mat, ind_mat, TICK, pkt_mat):
             sock = emit_strength_socket(mat)
             if sock:
                 sock.keyframe_insert("default_value", frame=f)
-        sock = emit_strength_socket(pkt_mat)
-        if sock:
-            sock.keyframe_insert("default_value", frame=f)
-        sock = emit_strength_socket(screen_mat)
-        if sock:
-            sock.keyframe_insert("default_value", frame=f)
 
 
 # -------------------------------------------------------- render settings ---
@@ -401,10 +551,142 @@ def project_rect(ob, radius, margin=1.30):
     return (ndc.x * sx - half, (1.0 - ndc.y) * sy - half, 2 * half, 2 * half)
 
 
+# ------------------------------------------------- camera-space geometry QA ---
+FRAME_MARGIN = 0.06      # NDC the packet must keep from every frame edge
+CLEARANCE_MIN = 0.0015   # 1.5 mm, about two card thicknesses
+
+
+def _obb_half(ob):
+    """Half-extents of an object's local bounding box."""
+    bb = ob.bound_box
+    return tuple((max(v[i] for v in bb) - min(v[i] for v in bb)) / 2.0 for i in range(3))
+
+
+def _obb_distance(ob, p):
+    """Distance from a world point to the object's oriented box. 0 when inside."""
+    q = ob.matrix_world.inverted() @ p
+    h = _obb_half(ob)
+    d = [max(abs(q[i]) - h[i], 0.0) for i in range(3)]
+    return math.sqrt(sum(v * v for v in d))
+
+
+def _ndc_radius(p, r):
+    """NDC half-size of a sphere of radius r at world point p, and its depth.
+
+    Blender's default AUTO sensor fit applies the 36 mm sensor to the LONGER
+    image side. This shot is portrait, so the vertical side gets it — flipping
+    the output to landscape would silently invert the two terms below.
+    """
+    view = (target.location - cam.location).normalized()
+    depth = (p - cam.location).dot(view)
+    tan_v = 18.0 / cam.data.lens
+    tan_h = tan_v * scene.render.resolution_x / scene.render.resolution_y
+    return r / (max(depth, 1e-6) * tan_h), r / (max(depth, 1e-6) * tan_v), depth
+
+
+PACKET_RADIUS = 0.0060
+
+
+def _occluder(origin, p, r):
+    """Name of the first solid object between the camera and the packet, or None."""
+    dg = bpy.context.evaluated_depsgraph_get()
+    d = p - origin
+    dist = d.length
+    hit, loc, _n, _i, ob, _m = scene.ray_cast(dg, origin, d.normalized(), distance=dist)
+    if hit and ob is not packet and (loc - origin).length < dist - r:
+        return ob.name
+    return None
+
+
+def packet_geometry(frames):
+    """Walk the packet through the shot; assert it is screen-safe and collision-free.
+
+    Returns (rows, problems). A row is one frame: position, whether the packet is
+    past the fade-in threshold, and its clearance to the nearest solid object.
+    """
+    solids = [
+        ("card", card), ("chip", chip), ("terminal_base", term_base),
+        ("terminal_head", term_head), ("screen", screen), ("indicator", indicator),
+    ]
+    rows, problems = [], []
+    for f in range(1, frames + 1):
+        story(f)
+        bpy.context.view_layer.update()
+        p = packet.matrix_world.translation.copy()
+        r = PACKET_RADIUS * packet.scale.x
+        moving = packet.scale.x >= 0.10
+        nearest = min((_obb_distance(o, p) - r, n) for n, o in solids)
+        if nearest[0] < CLEARANCE_MIN:
+            problems.append(f"f{f}: {nearest[0] * 1000:.1f} mm from {nearest[1]}")
+        if p.z - r <= 0.0:
+            problems.append(f"f{f}: below the floor")
+        ndc_x = ndc_y = float("nan")
+        if moving:
+            ndc = world_to_camera_view(scene, cam, p)
+            ndc_x, ndc_y = ndc.x, ndc.y
+            rx, ry, depth = _ndc_radius(p, r)
+            if depth <= 0:
+                problems.append(f"f{f}: behind the camera")
+            for axis, v, rad in (("x", ndc_x, rx), ("y", ndc_y, ry)):
+                if not (FRAME_MARGIN + rad <= v <= 1.0 - FRAME_MARGIN - rad):
+                    problems.append(f"f{f}: {axis}={v:.3f}+-{rad:.3f} breaks the margin")
+            # In frame is not the same as visible. Cast to the packet and check
+            # nothing solid is in front of it: a bright sphere behind the card
+            # would satisfy every other test here and still be hidden.
+            blocker = _occluder(cam.location, p, r)
+            if blocker:
+                problems.append(f"f{f}: hidden behind {blocker}")
+        rows.append((f, moving, p, nearest[0], nearest[1], ndc_x, ndc_y))
+    return rows, problems
+
+
+def curve_at(target_ob, frames):
+    """Declared exposure curve: relative illuminance at a subject, per frame.
+
+    Every light is parented to rig_root, so it translates with the camera. The
+    subject moves too — the card descends 26 mm — so the light-to-subject
+    distance still changes and a dolly-in genuinely brightens. This measures
+    that change from the real light positions. It is a prediction from geometry
+    and inverse-square falloff, not a curve fitted to a render.
+    """
+    out = []
+    for f in range(1, frames + 1):
+        story(f)
+        bpy.context.view_layer.update()
+        tp = target_ob.matrix_world.translation
+        out.append(sum(pw / max((lt.matrix_world.translation - tp).length_squared, 1e-6)
+                       for lt, pw in LIGHT_POWER))
+    return [v / out[0] for v in out] if out and out[0] > 0 else out
+
+
 REGION_TRACK = {"card": [], "chip": [], "terminal": []}
 
 frame_times = []
 paths = []
+
+if GEOMETRY_ONLY:
+    rows, problems = packet_geometry(max(FRAMES, 2))
+    moving = [r for r in rows if r[1]]
+    margins = [min(r[5], 1.0 - r[5], r[6], 1.0 - r[6]) for r in moving]
+    worst = min(rows, key=lambda r: r[3])
+    lines = [
+        "scene=v4",
+        "mode=geometry_only",
+        f"frames={len(rows)}",
+        f"packet_moving_frames={len(moving)}",
+        f"packet_first_moving={moving[0][0] if moving else '-'}",
+        f"packet_last_moving={moving[-1][0] if moving else '-'}",
+        f"packet_min_edge_margin={min(margins):.3f}" if margins else "packet_min_edge_margin=-",
+        f"packet_last_ndc=({moving[-1][5]:.3f},{moving[-1][6]:.3f})" if moving else "packet_last_ndc=-",
+        f"packet_min_clearance_mm={worst[3] * 1000:.2f}",
+        f"packet_nearest_object={worst[4]}",
+        f"packet_geometry={'PASS' if not problems else 'FAIL'}",
+    ]
+    lines += [f"packet_problem={p}" for p in problems]
+    cf_qa.write_report(os.path.join(OUT_DIR, f"{TAG}_geometry.txt"), lines)
+    for ln in lines:
+        print("CF " + ln)
+    raise SystemExit(0)
 
 if FRAMES > 1:
     keyframe_story(FRAMES)
@@ -462,8 +744,14 @@ lines = [
 
 if FRAMES > 1:
     regions = REGION_TRACK
-    curve = [float(x) for x in EXPECTED.split(",") if x.strip()] or None
-    qa = cf_qa.sequence_qa(paths, SHOT, regions=regions, expected=curve)
+    # The declared curve comes from geometry unless one is supplied explicitly.
+    # The card is the reference subject for the whole frame: it is what the shot
+    # is about, and the floor and background are deliberately near-black.
+    curve = [float(x) for x in EXPECTED.split(",") if x.strip()] or curve_at(card, FRAMES)
+    region_curves = {name: curve_at(ob, FRAMES)
+                     for name, ob in (("card", card), ("chip", chip), ("terminal", term_base))}
+    qa = cf_qa.sequence_qa(paths, SHOT, regions=regions, expected=curve,
+                           region_expected=region_curves)
     whole = qa["whole"]
     lines += [
         f"seq_max_deviation={whole['max_deviation']:.4f}",
@@ -475,12 +763,19 @@ if FRAMES > 1:
     if "expected_curve_error" in qa:
         lines.append(f"seq_expected_curve_error={qa['expected_curve_error']:.4f}")
     for name, m in qa.get("regions", {}).items():
+        extra = ""
+        if "expected_error" in m:
+            extra = f" region_{name}_expected_error={m['expected_error']:.4f}"
         lines.append(
             f"region_{name}_deviation={m['max_deviation']:.4f}"
             f" region_{name}_flicker={m['flicker_index']:.5f}"
             f" region_{name}_first={m['first']:.4f}"
-            f" region_{name}_last={m['last']:.4f}"
+            f" region_{name}_last={m['last']:.4f}" + extra
         )
+    # The declared curve is written out so the report can be audited without
+    # re-running the scene: these are the numbers the verdict was judged against.
+    lines.append("expected_ref=card")
+    lines.append("expected_curve=" + ",".join(f"{v:.4f}" for v in curve))
     lines.append(f"seq_verdict={qa['seq_verdict']}")
     per = sorted(frame_times[1:])[len(frame_times[1:]) // 2] if len(frame_times) > 1 else frame_times[0]
     lines.append(f"per_frame_seconds={per:.2f}")

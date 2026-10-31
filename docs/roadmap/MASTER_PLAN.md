@@ -1,6 +1,8 @@
 # Master Plan
 
-Owner: user. Status: **documentation phase**. Last updated: 2026-10-30.
+Owner: user. Status: **V4 — one excellent scene**. Last updated: 2026-10-31.
+
+Phase history is not rewritten: the documentation-only phase ran until G0 was approved by user declaration on 2026-10-30, and the install and bounded-render tasks (CF-019, CF-020, CF-025, CF-128–CF-133) were approved and completed after that date. B0 remains unauthorised.
 This file owns **phase and gate state only**. Evidence lives in `reports/`; decisions live in ADRs; atomic work lives in `tasks/BACKLOG.md`.
 
 ---
@@ -46,7 +48,7 @@ Produce original educational videos (Money · Technology · Digital Safety) in 9
 |---|---|---|---|---|
 | **R0** | Resolve corporate-use policy and host choice | — | Written answer covering installation and personal commercial use | Done — user declaration 2026-10-30 |
 | **R1** | Visual-language spike: SVG frames, CSS animation, cinematic WebGL POC | R0 or explicit risk acceptance | User approves the look | Implemented — 64/100, fails premium bar; awaiting V3 (`prototypes/cinematic`, `docs/reviews/VISUAL_BENCHMARK_REVIEW.md`) |
-| **V4** | **One excellent scene** — premium 3D benchmark, 10 s @ 24 fps | R1 | Score ≥80 and user accepts the look | **Open** — Blender installed and measured; a still exists that passes an objective exposure gate; the 10 s sequence has not been rendered |
+| **V4** | **One excellent scene** — premium 3D benchmark, 10 s @ 24 fps | R1 | Score ≥80 and user accepts the look | **Rendered, awaiting user acceptance** — 240 frames at 540×960/8 spp, `seq_verdict=PASS`, encoded to a 10.0 s captioned MP4. Open defects CF-134/135/136 are closed with measured evidence. Not yet at the 1080×1920 spec, and creative acceptance is the user's call, not the render's |
 | **R2** | **B0 benchmark** — 10 s vector render | R1 | Pass: ≤3 min, ≤1.5 GB RAM, ≤15 MB, legible at 360 px | Not authorised |
 | **R3** | Spine: schemas, frame generator, rasteriser, encoder | R2 pass | Re-render produces identical frames for static scenes | Not started |
 | **R4** | Template library (5 templates, both ratios) | R3 | Every template renders cleanly in 9:16 and 16:9 | Not started |

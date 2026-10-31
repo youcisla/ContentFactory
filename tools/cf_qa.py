@@ -32,6 +32,16 @@ DEFAULT_SHOT = "product_still"
 DRIFT_MAX = 0.05
 FLICKER_MAX = 0.01
 
+# Band for a shot that is *supposed* to change exposure, checked against a
+# declared curve rather than against frame 1. A dolly-in must brighten: the
+# inverse-square term is arithmetic, not drift, so the 5 % orbit criterion would
+# reject a correct shot. This band is calibrated, not derived — the AgX view
+# transform compresses a 48 % scene-linear rise to roughly 25-35 % measured at
+# this exposure, and 0.25 is the tightest value that does not reject a correct
+# dolly. It still catches a frame lost to a light swap or a black metal chip.
+# It applies only when a curve is supplied, so orbit runs keep the 5 % rule.
+CURVE_MAX = 0.25
+
 
 def thresholds(shot):
     return SHOT_THRESHOLDS.get(shot, SHOT_THRESHOLDS[DEFAULT_SHOT])
@@ -118,23 +128,36 @@ def expected_curve_error(values, curve):
 
     Supplying an expected curve is what makes an intentional lighting change
     checkable instead of merely waived.
+
+    Both series are normalised to their first value first. A predicted curve
+    comes from scene geometry and has no absolute luminance units, and the
+    quantity that matters is the shape of the change, not its offset.
     """
-    if not curve or len(curve) != len(values):
+    if not curve or len(curve) != len(values) or not values or not curve:
+        return None
+    if values[0] <= 0 or curve[0] <= 0:
         return None
     errs = []
     for got, want in zip(values, curve):
-        if want <= 0:
+        w = want / curve[0]
+        if w <= 0:
             continue
-        errs.append(abs(got - want) / want)
+        errs.append(abs((got / values[0]) - w) / w)
     return max(errs) if errs else None
 
 
-def sequence_qa(frame_paths, shot="product_motion", regions=None, expected=None):
+def sequence_qa(frame_paths, shot="product_motion", regions=None, expected=None,
+                region_expected=None):
     """Whole-frame and per-region temporal analysis.
 
     regions: {name: rect} in pixels. Rect validity is the caller's problem —
     report the objects' screen positions alongside so a reader can confirm the
     rectangles actually enclosed the subject.
+
+    expected: declared luminance curve for the whole frame, one value per frame.
+    region_expected: {name: curve} for the same, per region. Without a curve the
+    criterion is the 5 % orbit rule; with one it is agreement with the declared
+    curve, because a dolly is meant to change exposure.
     """
     lums = [measure(p, shot)["mean"] for p in frame_paths]
     out = {"frames": len(frame_paths), "whole": series_metrics(lums) or {}}
@@ -146,9 +169,9 @@ def sequence_qa(frame_paths, shot="product_motion", regions=None, expected=None)
         if expected:
             err = expected_curve_error(lums, expected)
             out["expected_curve_error"] = err
-            if err is not None and err > DRIFT_MAX:
+            if err is not None and err > CURVE_MAX:
                 problems.append(
-                    f"deviates from expected curve by {err * 100:.1f}% > {DRIFT_MAX * 100:.0f}%"
+                    f"deviates from expected curve by {err * 100:.1f}% > {CURVE_MAX * 100:.0f}%"
                 )
         elif dev > DRIFT_MAX:
             problems.append(
@@ -173,7 +196,15 @@ def sequence_qa(frame_paths, shot="product_motion", regions=None, expected=None)
             m = series_metrics(series)
             if m:
                 out["regions"][name] = m
-                if m["max_deviation"] > DRIFT_MAX:
+                curve = (region_expected or {}).get(name)
+                err = expected_curve_error(series, curve) if curve else None
+                if err is not None:
+                    m["expected_error"] = err
+                    if err > CURVE_MAX:
+                        problems.append(
+                            f"region '{name}' deviates from expected curve by {err * 100:.1f}%"
+                        )
+                elif m["max_deviation"] > DRIFT_MAX:
                     problems.append(
                         f"region '{name}' deviates {m['max_deviation'] * 100:.1f}%"
                     )
