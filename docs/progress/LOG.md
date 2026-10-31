@@ -687,3 +687,27 @@ The §5 estimate was ~108 s; actual 74.6 s. The estimate was 31 % conservative.
 **Bounded cycle exhausted.** Three creative revisions on A, one full rebuild as B. Remaining defects are art-direction defects, not defects another render pass would remove: the scene is grey-on-grey with no palette, no depth of field, and a subject that occupies a third of the frame.
 
 **Score: 57/100** (see §11 of `SAMPLE_AND_TEMPORAL_QA.md` computation). Below the 90 bar. Stopping per the bounded-cycle rule rather than producing a third candidate without a creative direction from the user.
+
+---
+
+## 2026-10-30 · Cleanup audit + task-ID reconciliation
+
+### BEFORE
+
+**Prompt:** autonomous studio mode. Mandatory cleanup audit before further implementation; resolve the CF-030–CF-035 ID collisions; fix CF-034/035/036; deliver a 30–45 s educational Short.
+
+**Plan:** do the mandatory, high-value, bounded work first — inventory, classification, ID mapping — then continue to scene fixes with whatever budget remains.
+
+### AFTER
+
+**Inventory:** 93 tracked files, 0 untracked, 7,661 ignored. `tools/blender/` 929 MB, `tools/blender-test/` 239 MB (217 PNGs = 249 MB, 5 MP4s = 630 KB, 49 QA reports). Total ≈1.17 GB.
+
+**Key structural finding:** tracked content is small and clean; **all the mass is ignored and regenerable**. The repository is in the right shape — the only waste is 249 MB of intermediate frames with no retention policy.
+
+**Classified A–F** in `docs/reviews/CLEANUP_AND_ID_RECONCILIATION.md`. Quarantine proposal: ~233 MB of Class D/E sequence frames. **Nothing deleted** — pre-existing files need authorization.
+
+**ID collisions resolved.** CF-028–CF-036 collided with Phase 3 spine IDs. The 3D workstream moved to the 1xx band (CF-128–CF-136); the spine keeps its originals; no history deleted. Nine rows renumbered in `tasks/BACKLOG.md`, mapping documented, band rule written into the ID rule line.
+
+**Not done this cycle:** CF-134/135/136 fixes, and the 30–45 s Short. No new renders were produced. The blocker is remaining working budget in this session, not a resource, permission, or dependency.
+
+**Next:** resume at CF-134 — packet end point needs a second reduction so it stays in frame for its full travel.
