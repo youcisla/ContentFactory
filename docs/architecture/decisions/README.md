@@ -49,6 +49,7 @@ Links to reports or measurements. No unsupported claims.
 | [0004](ADR-0004-local-tts.md) | Local TTS with licensed fallback | proposed | 2026-10-30 |
 | [0005](ADR-0005-audit-archive-immutability.md) | Audit archive is immutable | proposed | 2026-10-30 |
 | [0006](ADR-0006-publication-redaction.md) | Publication and redaction policy | proposed | 2026-10-30 |
+| [0007](ADR-0007-asset-driven-scene-pipeline.md) | Asset-driven scene assembly, deterministic render path | proposed | 2026-10-31 |
 
 ## Open questions (not yet ADRs)
 

@@ -787,3 +787,61 @@ The §5 estimate was ~108 s; actual 74.6 s. The estimate was 31 % conservative.
 **Not done.** No audio of any kind. The 1080×1920 master. The packet return leg for a full-3D 40 s cut.
 
 **Next executable action:** choose one of the two card-region fixes in `ANIMATIC_QA_2026-10-31.md` §4 — model the view term, or make the card diffuse — then re-render 240 frames and confirm the region error returns under 25 %.
+
+---
+
+## 2026-10-31 · Premium 3D production reset — research and architecture
+
+### BEFORE
+
+**Prompt.** A reset brief: stop polishing primitive Blender scenes; evaluate open-source Blender agent/pipeline projects; research commercially usable assets; propose a production architecture; produce a premium visual treatment and, if authorised, an 8–12 s benchmark; compare against the current baseline; update the roadmap and hygiene records. Ten candidate repositories named; Poly Haven, Blender Studio and several asset/generator sites named.
+
+**Verified first.** Working tree is clean at `d274790`. Disk free is **77 GB**, so the 50 GB G6 stop condition is not breached. Blender-driven subagents were already verified compatible in the previous milestone (probe returned the exact `DRIFT_MAX = 0.05` and threshold keys), so no new probe is run.
+
+**Plan.** (1) Log this entry. (2) Run three independent read-only research streams in parallel: candidate Blender tooling, asset libraries and licensing, and how the two named reference creators actually achieve their look. (3) Write the open-source evaluation, asset strategy, architecture recommendation and visual treatment as new documents under `docs/`. (4) State the exact authorisation each remaining step needs instead of claiming work that was not done. (5) Update `BACKLOG.md` with new task IDs and leave phase/gate state to `MASTER_PLAN.md`.
+
+**Assumptions.** Research is read-only and needs no gate. No install, download, service start or commit happens in this entry. The brief's own §12 permits bounded previews with existing tools, but a benchmark that needs new assets or new software also needs a named approval, so the default is to identify the blocker precisely rather than improvise.
+
+**Risks.** Documentation volume substituting for visible improvement — the brief warns about exactly this, so findings must be short and evidence-tagged. Web sources can be stale or wrong; every claim carries a confidence label. Context budget across four large documents.
+
+**Success criteria.** Each of the ten candidates has a verified existence/licence/maintenance verdict or an explicit UNKNOWN. Asset sources carry licence and commercial-use facts, not just links. The architecture decision names what to keep, replace and defer. The treatment is shot-specific enough to build from. Every unperformed step states its exact authorisation blocker. No commit, no install, no claim of visual acceptance.
+
+### AFTER
+
+**Delivered as documents, not as a film.** Three read-only research streams ran in parallel (candidate tooling, asset licensing, reference-creator method). No install, no clone, no asset download, no commit. Working tree now has 8 new/modified documentation paths plus one opt-in code block.
+
+**Tooling (deliverable A).** Ten candidates evaluated with licence, capability and security detail: `docs/research/open-source-projects/EVALUATION_2026-10-31.md`. Shortlist: `ifBars/blender-agent-studio` (MIT, active, Claude Code-native, saves `.blend`), `shefq/blendrelay-mcp` (MIT, typed tools), `ahujasid/mcp-for-blender` (MIT, most battle-tested). Rejected: no licence (`nishit47`), AGPL behind an MIT README (`RFingAdam`), abandoned or stale repos, and the official Blender lab MCP which its own vendor says runs LLM code with no guards. **Multi-shot timeline is unproven for all ten.** Every candidate builds scenes by executing model-written Python.
+
+**Assets (deliverable B).** `docs/research/assets/ASSET_STRATEGY_2026-10-31.md`. The decisive finding: **no CC0 payment terminal, card reader or credit card exists** in Poly Haven (521 models scanned), Sketchfab's CC0 filter, Kenney or Poly Pizza. Poly Haven and ambientCG remain excellent for CC0 HDRIs and PBR. Sketchfab has CC BY 4.0 terminals (credit required); the highest-detail one is a branded PAX device and is rejected on brand grounds. **No verified CC0 rigged hand exists**; Blender Studio Humans are CC0 but unrigged, Pip/Rain are CC BY. Smallest useful acquisition set is < 30 MB of CC0, with hero props modelled in-house.
+
+**Architecture (deliverable C).** `docs/architecture/decisions/ADR-0007-asset-driven-scene-pipeline.md` (proposed). Asset-driven scene assembly, `.blend` template + JSON shot spec, deterministic render path; agents may author, agents never render. V4 is frozen as the technical baseline.
+
+**Treatment (deliverable D).** `docs/creative/PREMIUM_TREATMENT_V5.md`. Original 11 s, four-shot treatment whose argument is carried by a rack focus from card to terminal. Ten checkable craft rules; explicit asset slots; explicit blockers.
+
+**Measured (deliverable G).** Added an opt-in `CF_LENS_PROBE` block to `tools/blender_scene_v4.py` (unset = baseline unchanged) and rendered five 1080×1920 stills at 32 samples, frame 150:
+
+| Run | Seconds |
+|---|---:|
+| baseline | 14.83 |
+| DOF f/2.8 + 180° blur | 21.46 |
+| DOF f/5.6 + 180° blur | 21.91 |
+| DOF f/5.6, no blur | 17.42 |
+| DOF f/16, no blur | 13.01 |
+
+**Finding that changes the plan:** at ~0.35 m with a 65 mm lens, f/2.8 and f/5.6 blur the *entire* set — the terminal screen, which is the film's payoff, becomes unreadable. Only f/16 restores baseline sharpness. Shallow depth of field is not available at tabletop scale unless the background is far away. Motion blur is the cost driver, not DOF. Recorded in `docs/benchmarks/LENS_PROBE_2026-10-31.md`; treatment rule C2 rewritten accordingly.
+
+**Reference-creator evidence.** Zack D. Films: contractor portfolio names Blender + Cascadeur + BlenderKit + After Effects + EmberGen with templates and a Flamenco farm — asset reuse, not bespoke modelling. Branch Education: buys and disassembles hardware, scans and rebuilds it to photographic fidelity, 1,100+ hours per video. Both spend on lens, light and sound. Team-size and per-day figures from fan wikis were not relied on.
+
+**Not done, and why.** No premium benchmark: it needs asset download approval (CF-140) and a `.blend` template (CF-142); neither exists. No agent-tool trial: needs an isolated environment and approval (CF-143). No audio. No V5 frame. Creative acceptance untouched.
+
+**Next executable action:** approve or refuse CF-140 (≤ 30 MB CC0 HDRI + PBR download). On approval: build `assets/manifest.json` + validator (CF-141), then the template (CF-142).
+
+**Follow-up — CF-140/CF-141 approved and closed, 2026-10-31 18:03.**
+
+User approved the asset download named as the next action. Downloaded a 10-file CC0 set, **23.1 MB total**, into `assets/`, with sha256 recorded for every file: `brown_photostudio_02` 2K HDR (Poly Haven), `metal_plate` 2K diffuse/rough/normal/metal (Poly Haven), `Plastic013A` 1K JPG (ambientCG). No account, no attribution owed, no collection download.
+
+`tools/check_assets.py` (CF-141) validates the manifest: PASS on the real set (`assets=10 total_mb=23.1`), and the negative control with `commercial_ok=false` exits 1 with two FAIL lines, so the gate can fail.
+
+Asset import proven headless: `CF_ASSET_HDRI` swaps the procedural world for the HDR and rendered frame 150 at **26.81 s** (1080×1920, 32 spp) against a 14.83 s procedural baseline — **+81 %**, the most expensive change measured so far. Visually the change is subtle at strength 0.3: environment alone does not make primitive geometry look premium, which is what the treatment predicted.
+
+`assets/` is currently untracked. Whether 23.1 MB of binaries belong in git or should be re-fetched from the manifest URLs is the user's call; nothing was committed.

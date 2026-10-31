@@ -1,6 +1,8 @@
 # Benchmarks
 
-**No benchmark has been run.** Each requires the approval recorded in [`docs/operations/APPROVAL_GATES.md`](../operations/APPROVAL_GATES.md).
+**No B-series benchmark has been run.** Each requires the approval recorded in [`docs/operations/APPROVAL_GATES.md`](../operations/APPROVAL_GATES.md).
+
+Separately, Blender measurements (CF-020, CF-025, CF-128, the 2026-10-31 lens probe) were authorised in-prompt by the user and are recorded under `Results log`. They are not B-series benchmarks and do not satisfy the B0 gate.
 
 Design source: `reports/v2/07-roadmap-v2.md` §4.
 
@@ -67,5 +69,6 @@ That the spine can iterate on this machine. It does **not** prove final visual q
 | B1 | — | not run | — |
 | B2 | — | not run | — |
 | B3 | — | not run | — |
+| CF-145 probe | 2026-10-31 | DOF and motion blur render headless; +45 % at f/2.8 + 180° shutter; macro DOF needs f/16 | [`LENS_PROBE_2026-10-31.md`](LENS_PROBE_2026-10-31.md) |
 
 When a result lands: record it here, update the affected risk entries, and do not rewrite the audit reports (ADR-0005).

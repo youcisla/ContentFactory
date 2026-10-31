@@ -2,7 +2,7 @@
 
 Documentation-first repository for an automated educational video pipeline (Money · Technology · Digital Safety), producing 9:16 Shorts and 16:9 long-form.
 
-**Phase: V4 plus a first animatic.** Blender 5.2.3 and Eevee are measured on this host; a 40 s animatic exists (CF-137), built from a 10 s rendered 3D scene and SVG diagrams. No production pipeline code yet, and there is no audio. See `docs/roadmap/MASTER_PLAN.md` for gates.
+**Phase: V4 plus a first animatic, with a premium 3D reset in preparation.** Blender 5.2.3 and Eevee are measured on this host; a 40 s animatic exists (CF-137), built from a 10 s rendered 3D scene and SVG diagrams. No production pipeline code yet, and there is no audio. The reset (tooling evaluation, licence-verified asset strategy, ADR-0007, V5 treatment) is researched and specified but **not built**: it needs two named approvals first. See `docs/roadmap/MASTER_PLAN.md` for gates.
 
 ---
 
@@ -19,6 +19,7 @@ Documentation-first repository for an automated educational video pipeline (Mone
 | Prototypes | R1 static SVG, R2 CSS animation, cinematic WebGL — all built | [`prototypes/`](prototypes/) |
 | Benchmark B0 (vector render) | **Not run — awaiting approval** | [`docs/benchmarks/README.md`](docs/benchmarks/README.md) |
 | Production pipeline | Not started — blocked on V4 | [`tasks/BACKLOG.md`](tasks/BACKLOG.md) |
+| Premium 3D reset — research and specification | **Done as documents; nothing built.** Ten Blender candidates evaluated; CC0 asset supply mapped (no CC0 terminal or card exists); asset-driven architecture proposed (ADR-0007, proposed); V5 treatment with shot list. Blocked on asset-download and isolated-tool approvals (CF-140, CF-143) | [`EVALUATION_2026-10-31.md`](docs/research/open-source-projects/EVALUATION_2026-10-31.md), [`ASSET_STRATEGY_2026-10-31.md`](docs/research/assets/ASSET_STRATEGY_2026-10-31.md), [`ADR-0007`](docs/architecture/decisions/ADR-0007-asset-driven-scene-pipeline.md), [`PREMIUM_TREATMENT_V5.md`](docs/creative/PREMIUM_TREATMENT_V5.md) |
 
 ## Current recommendation
 

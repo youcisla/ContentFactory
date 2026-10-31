@@ -3,6 +3,8 @@
 Verified 2026-10-30 via the GitHub API and raw licence files. No repository was cloned or executed.
 Full detail: `reports/03-repository-due-diligence.md` and `reports/v2/03-publishing-tools-v2.md`.
 
+**Update 2026-10-31:** capability and security detail for ten Blender candidates, including three this pass missed and the AGPL/no-licence traps — [`EVALUATION_2026-10-31.md`](EVALUATION_2026-10-31.md).
+
 ## Blender / 3D integrations
 
 | Project | Licence | Stars | Verdict |

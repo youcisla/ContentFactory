@@ -47,6 +47,10 @@ GEOMETRY_ONLY = os.environ.get("CF_GEOMETRY_ONLY", "0") == "1"
 # once without — is what separates "the coil is why the card region brightened"
 # from "the card region brightened, and the coil is a plausible excuse".
 EMISSION_GAIN = 0.0 if os.environ.get("CF_NO_EMISSION", "0") == "1" else 1.0
+# Opt-in camera-language probe: depth of field, 180-degree shutter and a contrast
+# look, so lens discipline can be judged on a still before any sequence exists.
+# Unset, the baseline render is unchanged.
+LENS_PROBE = os.environ.get("CF_LENS_PROBE", "0") == "1"
 
 OUT_DIR = cf_qa.report_dir(__file__)
 os.makedirs(OUT_DIR, exist_ok=True)
@@ -389,6 +393,18 @@ _wn.links.new(_rp.outputs["Color"], _bg.inputs["Color"])
 _bg.inputs["Strength"].default_value = 0.85
 scene.world = world
 
+# Opt-in asset probe: swap the procedural gradient for a CC0 studio HDRI that is
+# already recorded in assets/manifest.json. This exists to prove the HDR parses
+# headless and changes reflections; with CF_ASSET_HDRI unset the world above is
+# used unchanged.
+ASSET_HDRI = os.environ.get("CF_ASSET_HDRI", "")
+if ASSET_HDRI:
+    _env = _wn.nodes.new("ShaderNodeTexEnvironment")
+    _root = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
+    _env.image = bpy.data.images.load(os.path.join(_root, ASSET_HDRI), check_existing=True)
+    _wn.links.new(_env.outputs["Color"], _bg.inputs["Color"])
+    _bg.inputs["Strength"].default_value = float(os.environ.get("CF_HDRI_STRENGTH", "0.3"))
+
 
 # ------------------------------------------------------------ animation ---
 STORY_FRAMES = int(os.environ.get("CF_STORY_FRAMES", "24"))
@@ -531,6 +547,17 @@ for attr, val in (("use_shadow_jitter", True), ("shadow_ray_count", 4), ("shadow
 scene.view_settings.view_transform = "AgX"
 scene.view_settings.look = "None"
 scene.view_settings.exposure = 0.0
+
+if LENS_PROBE:
+    # Shallow focus on the card, a 180-degree shutter and a contrast look. These
+    # are the three cheapest perceived-quality levers measured in the V5
+    # treatment; this block exists to prove they render headless on this host.
+    cam.data.dof.use_dof = True
+    cam.data.dof.focus_object = card
+    cam.data.dof.aperture_fstop = float(os.environ.get("CF_FSTOP", "2.8"))
+    scene.render.use_motion_blur = True
+    scene.render.motion_blur_shutter = float(os.environ.get("CF_MBLUR", "0.5"))
+    scene.view_settings.look = "AgX - Medium High Contrast"
 
 print("VERSION", bpy.app.version_string)
 print("ENGINE", scene.render.engine)
