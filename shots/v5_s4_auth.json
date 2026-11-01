@@ -1,0 +1,219 @@
+{
+  "output": "render/sequences/v5_s4_auth.json",
+  "resolution": [
+    540,
+    960
+  ],
+  "samples": 16,
+  "camera": "CAM_Wide_35",
+  "lens": 45,
+  "f_stop": 8.0,
+  "exposure": -0.3,
+  "light": "premium_realistic",
+  "world_strength": 0.25,
+  "terminal": {
+    "location": [
+      0,
+      0,
+      0
+    ],
+    "rotation_z_deg": 0
+  },
+  "screen": {
+    "amount": "\u00a312.40",
+    "status": "REQUEST",
+    "color": [
+      0.55,
+      1.0,
+      0.7
+    ],
+    "strength": 4.0
+  },
+  "screen_events": [
+    {
+      "t": 0.0,
+      "status": "REQUEST"
+    },
+    {
+      "t": 2.4,
+      "status": "APPROVED",
+      "color": [
+        0.55,
+        1.0,
+        0.7
+      ]
+    }
+  ],
+  "network": {
+    "node_radius": 0.012,
+    "label_size": 0.02,
+    "packet": {
+      "radius": 0.007,
+      "color": [
+        1.0,
+        0.9,
+        0.5
+      ]
+    },
+    "nodes": [
+      {
+        "label": "TERMINAL",
+        "pos": [
+          0.0,
+          0.0,
+          0.09
+        ],
+        "color": [
+          0.6,
+          1.0,
+          0.8
+        ]
+      },
+      {
+        "label": "ACQUIRER",
+        "pos": [
+          0.05,
+          0.16,
+          0.13
+        ],
+        "color": [
+          0.3,
+          0.8,
+          1.0
+        ]
+      },
+      {
+        "label": "NETWORK",
+        "pos": [
+          0.02,
+          0.3,
+          0.17
+        ],
+        "color": [
+          0.3,
+          0.8,
+          1.0
+        ]
+      },
+      {
+        "label": "ISSUER",
+        "pos": [
+          0.06,
+          0.44,
+          0.21
+        ],
+        "color": [
+          0.3,
+          0.8,
+          1.0
+        ]
+      }
+    ],
+    "edges": [
+      [
+        0,
+        1
+      ],
+      [
+        1,
+        2
+      ],
+      [
+        2,
+        3
+      ]
+    ],
+    "edge_radius": 0.001
+  },
+  "animation": {
+    "duration_s": 3.0,
+    "fps": 24
+  },
+  "channels": {
+    "camera_location": {
+      "keys": [
+        [
+          0,
+          [
+            0.32,
+            -0.8,
+            0.44
+          ]
+        ],
+        [
+          3.0,
+          [
+            0.3,
+            -0.76,
+            0.42
+          ]
+        ]
+      ]
+    },
+    "marker": {
+      "keys": [
+        [
+          0,
+          [
+            0.03,
+            0.24,
+            0.15
+          ]
+        ],
+        [
+          3.0,
+          [
+            0.03,
+            0.24,
+            0.15
+          ]
+        ]
+      ]
+    },
+    "packet_pos": {
+      "keys": [
+        [
+          0,
+          [
+            0.0,
+            0.03,
+            0.1
+          ]
+        ],
+        [
+          0.6,
+          [
+            0.05,
+            0.16,
+            0.13
+          ]
+        ],
+        [
+          1.2,
+          [
+            0.02,
+            0.3,
+            0.17
+          ]
+        ],
+        [
+          1.8,
+          [
+            0.06,
+            0.44,
+            0.21
+          ]
+        ],
+        [
+          3.0,
+          [
+            0.06,
+            0.44,
+            0.21
+          ]
+        ]
+      ]
+    }
+  },
+  "counter_roughness": 0.9
+}

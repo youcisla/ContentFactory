@@ -958,3 +958,35 @@ The template's light powers were set from that sweep, not guessed: 2.2 / 0.55 / 
 **Repo state.** Branch `main`, nothing committed. `assets/` binaries remain git-ignored; `manifest.json` is tracked and now carries eleven rows. The terminal GLB is ignored by `assets/.gitignore` as designed.
 
 **Next executable action:** cut a 4-shot sequence from the three templates with real keyframes and measure it end to end; the hand remains the largest single quality lever after that.
+
+---
+
+## 2026-10-31 · V5 animated production milestone
+
+### BEFORE
+
+**Prompt.** Turn the still templates into one 12–15 s animated educational sequence: four directed shots, keyframed JSON, geometry checks, bounded 9:16 preview, FFmpeg assembly, narration research without installs, comparison against V4 at equal display size, incremental-cache proof, adversarial review, docs.
+
+**Verified first.** Working tree holds the uncommitted asset-first milestone (7 modified, 4 new tools, `shots/`, 5 new docs). Git clean point remains `b27a1e5`; nothing will be committed. Template + terminal master render from cache in 0.9 s; 5,100-tri terminal; 80 GB free.
+
+**Plan.** (1) Extend `tools/shot_render.py` with bounded channels (`camera_location`, `marker`, `terminal_rot_z`, `card_pos`, `screen_events`, `packet_pos`), smooth easing, per-frame rendering and a `--check` geometry mode. (2) Four shot specs: macro push-in, card approach, contactless tap with screen state change, authorisation diagram with a travelling packet. (3) Geometry gate before any sequence. (4) 540×960 preview, one worker. (5) FFmpeg assembly. (6) Cache-invalidation test by editing one spec. (7) TTS availability/licence research only. (8) V4 vs V5 comparison at 540×960. (9) Reviews. (10) Docs, scorecard, cleanup, BACKLOG/MASTER_PLAN.
+
+**Assumptions.** Windows SAPI voices exist but their licence for monetised narration is unverified, so audio stays blocked unless a permitted option is found without install. Low-resolution preview plus stills is the acceptance unit; premium quality is not claimed from a preview.
+
+**Risks.** 300+ frames at 540×960 could exceed 20 min; bounded to 12–15 s total at 24 fps. New diagram geometry could look amateurish — it is checked by stills before sequence rendering. Cache design is the second real test of content addressing.
+
+**Success criteria.** Four shots pass the camera-space check; one assembled 12–15 s 9:16 MP4 exists with recorded frame count; editing one shot leaves the other three cached; V4/V5 comparison recorded; every unbuilt item names its blocker; nothing committed.
+
+### BEFORE — resumed 2026-11-01
+
+**Prompt.** Same milestone, resumed in a new session: the four shot specs were edited at 23:22 after the adversarial reviews, but nothing was rendered or assembled against them. Finish the milestone — re-render, assemble, verify, review, document.
+
+**Verified first.** `shots/v5_s*.json` mtimes are 23:22; `render/sequences/*.json` pointers are 23:20 and `render/assembly/v5_sequence.mp4` is 23:16, so all four renders and the assembled cut predate the fixes. `tools/shot_render.py` (22:51) is older than the specs, so only the specs invalidate their own keys. Total footage 13.0 s (3.0+3.5+3.5+3.0), 312 frames at 24 fps (72+84+84+72), 0.9 s of crossfades, 12.1 s expected final. Disk 63 GB free, above the 50 GB gate. Blender 5.2.3 at `tools/blender/blender-5.2.3-windows-x64/blender.exe`.
+
+**Plan.** (1) Re-run the camera-space gate on all four specs. (2) Render all four shots, one worker, 540×960/16 spp. (3) Re-assemble with FFmpeg. (4) Extract verification frames and inspect them by eye. (5) Rebuild the V4/V5 comparison at matched display size. (6) Run technical, creative and educational adversarial reviews against the new frames. (7) Fix only material defects, retest inside the same budget. (8) Update MASTER_PLAN, BACKLOG, QA evidence, cleanup manifest and this log.
+
+**Assumptions.** Existing review findings from 2026-10-31 stay valid for what they targeted; they are re-verified against the new frames rather than re-derived from scratch. The narration research in `docs/production/NARRATION_OPTIONS_2026-10-31.md` stands as the answer to brief item 8 — no TTS engine is installed and nothing was downloaded.
+
+**Risks.** All four keys miss at once, about 12–13 min of single-worker render. A fix may have introduced a new framing defect the gate cannot see (the gate checks geometry, not composition), which is why the still inspection comes before the sequence review.
+
+**Success criteria.** One ~12.1 s 9:16 MP4 exists whose frames come from the fixed specs; frame count and clock measured, not assumed; review findings either fixed with a measured retest or recorded as blockers; documents updated; nothing committed.

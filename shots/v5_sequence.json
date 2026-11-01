@@ -1,0 +1,29 @@
+{
+  "fps": 24,
+  "resolution": [
+    540,
+    960
+  ],
+  "shots": [
+    {
+      "spec": "shots/v5_s1_macro.json",
+      "caption": "A payment terminal waits for a card",
+      "transition_s": 0.3
+    },
+    {
+      "spec": "shots/v5_s2_approach.json",
+      "caption": "The card approaches the reader",
+      "transition_s": 0.3
+    },
+    {
+      "spec": "shots/v5_s3_tap.json",
+      "caption": "Contactless: the card is read",
+      "transition_s": 0.3
+    },
+    {
+      "spec": "shots/v5_s4_auth.json",
+      "caption": "The terminal asks the network to authorise",
+      "transition_s": 0.0
+    }
+  ]
+}
